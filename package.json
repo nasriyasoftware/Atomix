@@ -1,0 +1,44 @@
+{
+  "name": "@nasriya/atomix",
+  "version": "1.0.0",
+  "description": "Composable helper functions for building reliable systems",
+  "keywords": [
+    "helpers",
+    "utilities",
+    "toolkit",
+    "core",
+    "shared",
+    "atomix"
+  ],
+  "type": "module",
+  "main": "./dist/cjs/atomix.js",
+  "module": "./dist/esm/atomix.js",
+  "types": "./dist/@types/atomix.d.ts",
+  "files": [
+    "dist/**/*"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/esm/atomix.js",
+      "require": "./dist/cjs/atomix.js",
+      "types": "./dist/@types/atomix.d.ts"
+    }
+  },
+  "repository": {
+    "type": "github",
+    "url": "https://github.com/nasriyasoftware/Atomix"
+  },
+  "bugs": {
+    "url": "https://github.com/nasriyasoftware/Atomix/issues"
+  },
+  "homepage": "https://package.nasriya.net/Atomix",
+  "funding": {
+    "type": "individual",
+    "url": "https://fund.nasriya.net/"
+  },
+  "license": "Nasriya Software License",
+  "author": "Nasriya Software",
+  "devDependencies": {
+    "@types/node": "^22.15.21"
+  }
+}
