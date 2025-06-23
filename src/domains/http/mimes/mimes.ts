@@ -13,11 +13,18 @@ class Mimes {
         const mimes = new Set<Mime>();
 
         for (const { extension, mime } of mimeData) {
-            exts.add(extension);
-            mimes.add(mime);
+            const mainMime = mime[0];
+            const mainExt = extension[0];
 
-            this.#_cache.extensionToMime.set(extension, mime);
-            this.#_cache.mimeToExtension.set(mime, extension);
+            for (const ext of extension) {                
+                exts.add(ext);
+                this.#_cache.extensionToMime.set(ext, mainMime);
+            }
+
+            for (const mimeType of mime) {
+                mimes.add(mimeType);
+                this.#_cache.mimeToExtension.set(mimeType, mainExt);
+            }
         }
 
         this.#_extensions = Array.from(exts);
@@ -78,5 +85,5 @@ class Mimes {
 const mimes = new Mimes;
 export default mimes;
 
-export type Mime = typeof mimeData[number]["mime"];
-export type FileExtension = typeof mimeData[number]["extension"];
+export type Mime = typeof mimeData[number]["mime"][number];
+export type FileExtension = typeof mimeData[number]["extension"][number];
