@@ -1,4 +1,3 @@
-
 class NumbersGuard {
     /**
      * Checks if the provided value is a number.

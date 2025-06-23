@@ -1,4 +1,4 @@
-[
+export const mimeData = [
     {
         "extension": ".webp",
         "description": "Web Picture",
@@ -269,4 +269,6 @@
         "description": "Tagged Image File Format (TIFF)",
         "mime": "image/tiff"
     }
-]
+] as const;
+
+export default mimeData;

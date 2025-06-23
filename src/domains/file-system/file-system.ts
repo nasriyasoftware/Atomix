@@ -1,10 +1,9 @@
 import fs from 'fs';
 import path from 'path';
-import { AccessOptions, WatcherConfigs, WatcherOptions } from './docs';
+import { AccessOptions } from './docs';
 import { getAccessOptions } from './assets/helpers';
 import stringsUtils from '../data-types/string/strings-utils';
 import fsPromises from './assets/fs-promises';
-import Watcher from './assets/watcher';
 
 class FileSystemUtils {
     /**
@@ -71,26 +70,6 @@ class FileSystemUtils {
 
             return false;
         }
-    }
-
-    /**
-     * Creates a file system watcher for monitoring changes in a specified path.
-     *
-     * @param pathToWatch - The path to the directory or file to be watched.
-     * @param options - Optional configurations for the watcher.
-     * @param options.debounceInterval - The interval in milliseconds to debounce change events.
-     * @param options.handlers - An object containing event handlers for modify and disconnect events.
-     * @returns An instance of the Watcher configured for the specified path.
-     * @since v1.0.0
-     */
-    createWatcher(pathToWatch: string, options: WatcherOptions) {
-        const configs: WatcherConfigs = {
-            path: pathToWatch,
-            debounceInterval: options?.debounceInterval,
-            handlers: options?.handlers,
-        }
-
-        return new Watcher(configs);
     }
 }
 

@@ -3,8 +3,23 @@ import objectsUtils from "./domains/data-types/object/objects-utils";
 import recordsUtils from "./domains/data-types/record/records-utils";
 import arraysUtils from "./domains/data-types/array/arrays-utils";
 import numbersUtils from "./domains/data-types/number/numbers-utils";
+import regexUtils from "./domains/data-types/regex/regex-utils";
 
 class ValueIs {
+    /**
+     * Checks if the provided value is defined, i.e. not null and not undefined.
+     * 
+     * @param value - The value to check.
+     * @returns True if the value is defined, otherwise false.
+     * @example
+     * valueIs.defined(null); // ❌ false
+     * valueIs.defined(undefined); // ❌ false
+     * valueIs.defined(0); // ✅ true
+     * @since v1.0.0
+     */
+    defined(value: unknown): value is NonNullable<unknown> {
+        return value !== undefined && value !== null;
+    }
     /**
      * Checks if the provided value is an instance of the specified class.
      * 
@@ -154,7 +169,16 @@ class ValueIs {
      * @returns True if the value is a string, otherwise false.
      * @since v1.0.0
      */
-    readonly string = stringsUtils.guard.isString;    
+    readonly string = stringsUtils.guard.isString;
+
+    /**
+     * Checks if the provided string value is blank (contains only whitespace).
+     * 
+     * @param value - The value to check.
+     * @returns True if the value is a string containing only whitespace, otherwise false.
+     * @since v1.0.0
+     */
+    readonly blankString = stringsUtils.guard.isBlank.bind(stringsUtils.guard);
 
     /**
      * Checks if the provided string value is empty.
@@ -216,6 +240,15 @@ class ValueIs {
      * The format is different for each version.
      */
     readonly uuid = stringsUtils.guard.isUUID;
+
+    /**
+     * Checks if the given pattern is a glob-like pattern, meaning it contains at least one of the
+     * characters `*` or `?`.
+     * @param pattern The pattern to check.
+     * @returns true if the given pattern is a glob-like pattern, false otherwise.
+     * @since v1.0.0
+     */
+    readonly globLike = regexUtils.guard.isGlobLike;
 
     // ==========================================
     // ============= Objects Guards =============
@@ -372,5 +405,3 @@ class ValueIs {
 
 const valueIs = new ValueIs;
 export default valueIs;
-
-console.log(valueIs.instanceOf(new Date(), Date))

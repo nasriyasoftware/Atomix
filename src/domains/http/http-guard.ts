@@ -1,5 +1,5 @@
 import stringsUtils from "../data-types/string/strings-utils";
-import mimes, { Mime } from "../../data/mimes";
+import mimes, { FileExtension, Mime } from "./mimes/mimes";
 
 class HTTPGuard {
     /**
@@ -27,7 +27,20 @@ class HTTPGuard {
      * A valid MIME type is a string that matches one of the predefined MIME types.
      */
     isMimeType(value: unknown): value is Mime {
-        return mimes.includes(value as any);
+        return mimes.isValid.mime(value);
+    }
+
+    /**
+     * Checks if the provided value is a valid file extension.
+     * 
+     * @param value - The value to check.
+     * @returns True if the value is a valid file extension, otherwise false.
+     * @since v1.0.0
+     * @description
+     * A valid file extension is a string that matches one of the predefined file extensions.
+     */
+    isExtension(value: unknown): value is FileExtension {
+        return mimes.isValid.extension(value);
     }
 
     /**

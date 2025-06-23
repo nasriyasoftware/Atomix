@@ -11,6 +11,17 @@ class StringGuard {
     }
 
     /**
+     * Checks if the provided string value is blank (contains only whitespace).
+     * 
+     * @param value - The value to check.
+     * @returns True if the value is a string containing only whitespace, otherwise false.
+     * @since v1.0.0
+     */
+    isBlank(value: unknown): value is string {
+        return this.isString(value) && value.trim().length === 0;
+    }
+
+    /**
      * Checks if the provided string value is empty.
      * 
      * @param value - The value to check.
@@ -44,7 +55,7 @@ class StringGuard {
      */
     isValidString(value: unknown): value is string {
         return this.isString(value) && value.trim().length > 0;
-    }    
+    }
 
     /**
      * Checks if the provided value is an alphabetic string.
@@ -93,7 +104,7 @@ class StringGuard {
             default:
                 throw new SyntaxError(`Invalid UUID version: ${version}`);
         }
-    }    
+    }
 }
 
 const stringsGuard = new StringGuard;

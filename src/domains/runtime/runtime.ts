@@ -16,11 +16,12 @@ class Runtime {
     }
 
     /**
-     * Gets the current Node.js environment, either 'commonjs' or 'module'.
-     * @returns 'commonjs' if the current environment is CommonJS, 'module' if it is ES modules.
+     * Determines the module system being used.
+     * 
+     * @returns 'commonjs' or 'module'.
      * @since v1.0.0
      */
-    getNodeEnv(): 'commonjs' | 'module' {
+    getModuleSystem(): 'commonjs' | 'module' {
         return typeof module !== 'undefined' && module.exports ? 'commonjs' : 'module';
     }
 
@@ -38,7 +39,7 @@ class Runtime {
         return new Promise<any>((resolve, reject) => {
             try {
                 const isFile = options?.isFile ?? false;
-                const nodeEnv = this.getNodeEnv();
+                const nodeEnv = this.getModuleSystem();
 
                 if (nodeEnv === 'commonjs') {
                     const mod = require(name);
@@ -64,6 +65,75 @@ class Runtime {
      */
     async loadFileModule(filePath: string): Promise<any> {
         return this.loadModule(filePath, { isFile: true });
+    }
+
+    readonly platform = {
+        /**
+         * Determines if the current platform is Windows.
+         * 
+         * @returns True if the current platform is Windows, false otherwise.
+         * @since v1.0.0
+         */
+        isWindows: () => {
+            return process.platform === 'win32';
+        },
+        /**
+         * Determines if the current platform is Linux.
+         * @returns True if the current platform is Linux, false otherwise.
+         * @since v1.0.0
+         */
+        isLinux: () => {
+            return process.platform === 'linux';
+        },
+        /**
+         * Determines if the current platform is macOS.
+         * @returns True if the current platform is macOS, false otherwise.
+         * @since v1.0.0
+         */
+        isMac: () => {
+            return process.platform === 'darwin';
+        }
+    }
+
+    /**
+     * Checks if the current environment is Node.js.
+     * @returns true if the environment is Node.js, false otherwise.
+     * @since v1.0.0
+     */
+    isNode() {
+        return typeof process !== 'undefined' && process.versions != null && process.versions.node != null;
+    }
+
+    /**
+     * Checks if the current environment is Bun.
+     * @returns true if the environment is Bun, false otherwise.
+     * @since v1.0.0
+     */
+    isBun() {
+        return typeof process !== 'undefined' && process.versions != null && process.versions.bun != null;
+    }
+
+    /**
+     * Checks if the current environment is Deno.
+     * @returns true if the environment is Deno, false otherwise.
+     * @since v1.0.0
+     */
+    isDeno() {
+        // @ts-ignore
+        return typeof Deno !== 'undefined' && typeof Deno.version === 'object'
+    }
+
+    /**
+     * Gets the name of the runtime engine (Node.js, Bun, Deno, etc.) that is currently being used.
+     * @returns The name of the runtime engine, or 'unknown' if the engine could not be determined.
+     * @since v1.0.0
+     */
+    getRuntimeEngine(): 'node' | 'bun' | 'deno' | 'unknown' {
+        if (this.isNode()) { return 'node' }
+        if (this.isBun()) { return 'bun' }
+        if (this.isDeno()) { return 'deno' }
+
+        return 'unknown';
     }
 }
 

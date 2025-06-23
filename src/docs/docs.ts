@@ -1,3 +1,5 @@
+export { Mime, FileExtension } from "../domains/http/mimes/mimes";
+
 export type DeepReadonly<T> = {
     readonly [P in keyof T]: T[P] extends (...args: any[]) => any
     ? T[P] // Functions stay callable (not made readonly)
@@ -18,3 +20,29 @@ export type Objects = Record<string, any> | any[];
 export type Prettify<T> = {
     [K in keyof T]: T[K];
 } & {};
+
+export interface StringPaddingOptions {
+    /**
+     * The side to pad the string on.
+     * 
+     * @default 'start'
+     * @since v1.0.0
+     */
+    side?: 'start' | 'end' | 'both',
+    /**
+     * The character to fill the padding with.
+     * 
+     * @default ' ' // Empty character
+     * @since v1.0.0
+     */
+    fillChar?: string,
+    /**
+     * Whether to fill the padding with random characters.
+     * 
+     * **Important:** This will override the `fillChar` option.
+     * 
+     * @default false
+     * @since v1.0.0
+     */
+    random?: boolean
+}

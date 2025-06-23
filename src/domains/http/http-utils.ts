@@ -1,4 +1,4 @@
-import mimes from "../../data/mimes";
+import mimes from "./mimes/mimes";
 import httpGuard from "./http-guard";
 
 class HTTPUtils {
@@ -9,9 +9,10 @@ class HTTPUtils {
     get guard() { return httpGuard }
 
     /**
-     * Returns the list of valid MIME types.
+     * Returns the Mimes instance.
      */
     readonly mimes = mimes
+    
     /**
      * Encodes a UTF-8 string into Base64, mimicking browser `btoa()` for regular text.
      * @param text The UTF-8 text to encode.

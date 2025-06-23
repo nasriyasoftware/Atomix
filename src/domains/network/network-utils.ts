@@ -2,8 +2,14 @@ import runtime from "../runtime/runtime";
 
 class NetworkUtils {
     /**
-     * Get the local IP address of the server
-     * @returns {string[]} An array of local IPs
+     * Get the local IP address of the server.
+     *
+     * Compatibility (tested):
+     * - Node.js: ✅ Supported (v10+)
+     * - Bun: ✅ Supported (v1.2.15+)
+     * - Deno: ❓ Untested (compatibility unknown)
+     *
+     * @returns {string[]} An array of local IPs.
      */
     async getLocalIPs(): Promise<string[]> {
         const os = await runtime.loadModule('os');

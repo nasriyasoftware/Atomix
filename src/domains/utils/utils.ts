@@ -5,7 +5,8 @@ class CommonUtils {
      * Generate a random text
      * @param length The length of the text. Minimum of `4`
      * @param [options] Options for generating the text
-     * @returns 
+     * @returns The generated text
+     * @since v1.0.0
      */
     generateRandom(length: number, options: RandomOptions = {}): string {
         const {
@@ -52,6 +53,116 @@ class CommonUtils {
         }
 
         return text;
+    }
+
+    /**
+     * Pauses execution for a specified number of milliseconds.
+     * 
+     * This function returns a promise that resolves after the given duration,
+     * allowing for asynchronous code to wait before proceeding.
+     * 
+     * @param ms - The number of milliseconds to sleep.
+     * @returns A promise that resolves after the specified delay.
+     * @since v1.0.0
+     */
+    sleep(ms: number): Promise<void> {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    /**
+     * Returns a debounced version of the given function.
+     *
+     * When the given function is called, it will wait the specified delay before
+     * actually calling the function. If the function is called multiple times
+     * within that delay, it will only call the function once after the delay
+     * has passed.
+     *
+     * @param fn - The function to debounce.
+     * @param delay - The number of milliseconds to delay calling the function.
+     * @returns A debounced version of the given function that returns a promise.
+     * @since v1.0.0
+     */
+    debounce<T extends (...args: any[]) => any>(fn: T, delay: number): (...args: Parameters<T>) => Promise<ReturnType<T>> {
+        let timeout: NodeJS.Timeout | null = null;
+        let resolveFn: ((value: any) => void) | null = null;
+
+        return (...args: Parameters<T>) => {
+            if (timeout) clearTimeout(timeout);
+
+            return new Promise<ReturnType<T>>((resolve) => {
+                resolveFn = resolve;
+                timeout = setTimeout(async () => {
+                    const result = await fn(...args);
+                    resolveFn?.(result);
+                }, delay);
+            });
+        };
+    }
+
+    /**
+     * Returns a throttled version of the given function.
+     *
+     * The throttled function will only invoke the original function at most
+     * once in the specified delay period. If the function returns a promise,
+     * it will maintain the promise chain and resolve with the promise's value.
+     * If the throttled function is called again before the delay has passed,
+     * it will return the pending promise or resolve immediately if there is none.
+     *
+     * @param fn - The function to throttle.
+     * @param delay - The number of milliseconds to throttle invocations to.
+     * @returns A throttled version of the given function that returns a promise.
+     * @since v1.0.0
+     */
+    throttle<T extends (...args: any[]) => any>(fn: T, delay: number): (...args: Parameters<T>) => Promise<ReturnType<T>> | void {
+        let lastTime = 0;
+        let pendingPromise: Promise<ReturnType<T>> | null = null;
+
+        return (...args: Parameters<T>) => {
+            const now = Date.now();
+            if (now - lastTime < delay) {
+                return pendingPromise || Promise.resolve();
+            }
+
+            lastTime = now;
+            const result = fn(...args);
+            if (result instanceof Promise) {
+                pendingPromise = result.then((val) => {
+                    pendingPromise = null;
+                    return val;
+                });
+                return pendingPromise;
+            } else {
+                return Promise.resolve(result);
+            }
+        };
+    }
+
+    /**
+     * A no-operation function useful as a placeholder callback.
+     * @since v1.0.0
+     */
+    noop() { }
+
+    /**
+     * Wraps a function such that it will only be called once.
+     *
+     * All subsequent calls will return the cached result of the first call.
+     *
+     * @param fn - The function to wrap.
+     * @returns A wrapped version of the function that will only be called once.
+     * @since v1.0.0
+     */
+    once<T extends (...args: any[]) => any>(fn: T): (...args: Parameters<T>) => ReturnType<T> {
+        let called = false;
+        let result: ReturnType<T>;
+
+        return (...args: Parameters<T>): ReturnType<T> => {
+            if (!called) {
+                called = true;
+                result = fn(...args);
+            }
+            return result;
+        };
     }
 }
 
