@@ -142,7 +142,8 @@ class PathUtils {
     relativeToCwd(path_: string): string {
         const cwd = process.cwd();
         const relative = path.relative(cwd, path_);
-        return this.normalizePath(relative);
+        const normalized = path.normalize(relative);
+        return runtime.platform.isWindows() ? normalized.toLowerCase() : normalized;
     }
 }
 

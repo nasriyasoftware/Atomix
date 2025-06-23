@@ -3,13 +3,15 @@ import path from "path";
 import fs from "fs";
 import { testDir } from "../configs";
 
+const runtimeTestDir = path.join(testDir, 'runtime');
+
 describe("the 'runtime' module", () => {
     beforeAll(() => {
-        fs.mkdirSync(testDir, { recursive: true });
+        fs.mkdirSync(runtimeTestDir, { recursive: true });
     })
 
     afterAll(() => {
-        if (fs.existsSync(testDir)) { fs.rmSync(testDir, { recursive: true }); }
+        if (fs.existsSync(runtimeTestDir)) { fs.rmSync(runtimeTestDir, { recursive: true }); }
     })
 
     const runtime = atomix.runtime;
@@ -54,7 +56,7 @@ describe("the 'runtime' module", () => {
     });
 
     it('should load modules correctly', async () => {
-        const testModulePath = path.join(testDir, 'test_module.js');
+        const testModulePath = path.join(runtimeTestDir, 'test_module.js');
         const moduleContent = (() => {
             if (moduleSystem === 'commonjs') {
                 return `module.exports = { name: 'John', age: 30 }`;
@@ -70,7 +72,7 @@ describe("the 'runtime' module", () => {
     });
 
     it("should load file module (loadFileModule) correctly", async () => {
-        const testModulePath = path.join(testDir, "test_file_module.js");
+        const testModulePath = path.join(runtimeTestDir, "test_file_module.js");
         const moduleContent = (() => {
             if (moduleSystem === "commonjs") {
                 return `module.exports = { foo: 'bar' }`;
