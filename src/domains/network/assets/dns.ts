@@ -1,4 +1,4 @@
-import dns, { AnyRecord, CaaRecord, MxRecord, NaptrRecord, SoaRecord, SrvRecord } from "dns";
+import dns, { AnyRecord, CaaRecord, MxRecord, NaptrRecord, SoaRecord, SrvRecord, TlsaRecord } from "dns";
 import stringsGuard from "../../data-types/string/strings-guard";
 import runtime from "../../runtime/runtime";
 import arraysUtils from "../../data-types/array/arrays-utils";
@@ -65,9 +65,10 @@ class NetworkDNS {
     resolve(hostname: string, rrtype: "PTR"): Promise<string[]>;
     resolve(hostname: string, rrtype: "SOA"): Promise<SoaRecord>;
     resolve(hostname: string, rrtype: "SRV"): Promise<SrvRecord[]>;
+    resolve(hostname: string, rrtype: "TLSA"): Promise<TlsaRecord[]>;
     resolve(hostname: string, rrtype: "TXT"): Promise<string[]>;
 
-    async resolve(hostname: string, rrtype?: RRType): Promise<string[] | MxRecord[] | NaptrRecord[] | SoaRecord | SrvRecord[] | string[][] | CaaRecord[] | AnyRecord[]> {
+    async resolve(hostname: string, rrtype?: RRType): Promise<string[] | MxRecord[] | NaptrRecord[] | SoaRecord | SrvRecord[] | string[][] | CaaRecord[] | AnyRecord[] | TlsaRecord[]> {
         if (!stringsGuard.isString(hostname)) { throw new Error(`The hostname should be string, instead got ${typeof hostname}`) }
         if (rrtype === undefined) { rrtype = 'A' }
 
@@ -293,4 +294,4 @@ class NetworkDNS {
 const networkDNS = new NetworkDNS();
 export default networkDNS;
 
-export type RRType = 'A' | 'AAAA' | 'ANY' | 'CAA' | 'CNAME' | 'MX' | 'NAPTR' | 'NS' | 'PTR' | 'SOA' | 'SRV' | 'TXT';
+export type RRType = 'A' | 'AAAA' | 'ANY' | 'CAA' | 'CNAME' | 'MX' | 'NAPTR' | 'NS' | 'PTR' | 'SOA' | 'SRV' | 'TXT' | 'TLSA';

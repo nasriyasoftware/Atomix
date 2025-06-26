@@ -36,7 +36,7 @@ Signature: `resolve(hostname: string, rrtype?: RRType): Promise<...>`
 Runtime compatibility:
 
 - Node.js: ✅ Fully supported
-- Bun: ⚠️ Limited support (NAPTR unsupported, TXT unstable)
+- Bun: ⚠️ Limited support (`NAPTR` unsupported, `TXT` unstable, `TLSA` untested)
 - Deno: ❓ Untested, likely supported via std DNS API but not confirmed
 
 Example:
