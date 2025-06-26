@@ -24,7 +24,7 @@ const arraysGuard = atomix.dataTypes.array.guard;
 | [isArrayOfArrays](#-isarrayofarrays)   | Checks if a value is an array of arrays       |
 
 ---
-## Examples
+## API Details
 
 ### 📋 `isArray`
 Signature: `isArray(value: unknown): value is Array<any>`

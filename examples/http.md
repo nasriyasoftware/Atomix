@@ -47,7 +47,7 @@ const http = atomix.http;
 | `atob(base64)` | Decode Base64 to UTF-8 text |
 
 ---
-## Examples
+## API Details
 
 ### HTTP Guard Utilities
 

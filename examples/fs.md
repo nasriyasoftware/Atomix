@@ -34,7 +34,7 @@ interface AccessOptions {
 ```
 
 ---
-## Examples
+## API Details
 
 ### 📂 `loadJSONSync`
 Signature: `loadJSONSync(filePath: string): Record<string, any> | Array<any>`

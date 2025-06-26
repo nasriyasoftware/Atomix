@@ -22,7 +22,7 @@ const utils = atomix.utils;
 
 
 ---
-## Examples:
+## API Details:
 
 ### 📌 `generateRandom`
 Signature: `generateRandom(length, options?)`

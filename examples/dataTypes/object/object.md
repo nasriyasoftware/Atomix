@@ -24,7 +24,7 @@ const object = atomix.dataTypes.object;
 | [stringify](#-stringify)   | Converts a record or array to a JSON string                            |
 
 ---
-## Examples
+## API Details
 
 ### `clone`
 Signature: `clone<T>(obj: T): T`

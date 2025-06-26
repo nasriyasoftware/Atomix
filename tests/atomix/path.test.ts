@@ -40,8 +40,7 @@ describe("the 'path' module", () => {
 
     it("should throw if given extension is invalid", () => {
         const filePath = "/some/path/file.txt";
-        expect(() => atomix.path.changeExtension(filePath, ".invalid_ext"))
-            .toThrow("Invalid file extension");
+        expect(() => atomix.path.changeExtension(filePath, ".invalid_ext")).toThrow("Invalid file extension");
     });
 
     it("should correctly validate paths based on platform", () => {

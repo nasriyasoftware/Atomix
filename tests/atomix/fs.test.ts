@@ -1,7 +1,8 @@
 import atomix from "../../src/atomix";
 import fs from "fs";
 import path from "path";
-import { testDir } from "../configs";
+import { testDir } from "../assets/configs";
+
 
 const fsTestDir = path.join(testDir, 'fs');
 

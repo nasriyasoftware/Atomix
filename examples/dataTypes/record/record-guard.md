@@ -21,7 +21,7 @@ const recordsGuard = atomix.dataTypes.record.guard;
 | isRecord | Checks if a value is a plain Record object |
 
 ---
-## Examples
+## API Details
 
 ### ⚠️ `isEmpty`
 Signature: `isEmpty(value: unknown): boolean`

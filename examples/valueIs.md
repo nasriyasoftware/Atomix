@@ -39,7 +39,7 @@ A versatile collection of runtime type guards and value checks for common JavaSc
 
 ---
 
-## Examples
+## API Details
 
 ### `defined`  
 Signature: `defined(value: unknown): value is NonNullable<unknown>`

@@ -18,7 +18,7 @@ const regex = atomix.dataTypes.regex;
 | [globToRegExp](#-globtoregexp) | Converts a glob expression to a JavaScript RegExp instance. |
 
 ---
-## Examples
+## API Details
 
 ### 🔍 `globToRegExp`
 Signature: `globToRegExp(glob: string, options?: { globstar?: boolean; flags?: string }): RegExp`

@@ -28,7 +28,7 @@ const stringsGuard = atomix.dataTypes.string.guard;
 | isValidString  | Checks if a string is not empty after trimming           |
 
 ---
-## Examples
+## API Details
 
 ### ✅ `isAlpha`
 Signature: `isAlpha(value: unknown): value is string`

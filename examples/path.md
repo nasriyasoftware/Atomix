@@ -24,7 +24,7 @@ const path = atomix.path;
 
 ---
 
-## Examples
+## API Details
 
 ### 🛤️ `normalizePath`
 Signature: `normalizePath(path: string): string`

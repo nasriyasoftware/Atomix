@@ -26,7 +26,7 @@ const records = atomix.dataTypes.record;
 | [parse](#-parse)                   | Parses a JSON string into a typed `Record<string, any>` object |
 
 ---
-## Examples
+## API Details
 
 ### ✅ `hasOwnProperty`
 Signature: `hasOwnProperty(obj: unknown, prop: string): boolean`

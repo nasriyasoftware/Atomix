@@ -61,16 +61,16 @@ atomix.valueIs;     // Access the Value Is domain for generic validations
 atomix.fs;          // Access the File System domain
 ```
 
-| Domain (Module)          | Description                                                                                | Examples                                        |
-| ------------------------ | ------------------------------------------------------------------------------------------ | ----------------------------------------------- |
-| Data Types (`dataTypes`) | Helpers for `arrays`, `strings`, `numbers`, and more                                       | [Examples ›](./examples/dataTypes/dataTypes.md) |
-| Value Is (`valueIs`)     | Generic validations & type guards across multiple domains, including `instanceOf` and more | [Examples ›](./examples/valueIs.md)             |
-| Path (`path`)            | File and directory path utilities                                                          | [Examples ›](./examples/path.md)                |
-| File System (`fs`)       | Sync and async file operations, access checks                                              | [Examples ›](./examples/fs.md)                  |
-| HTTP (`http`)            | HTTP request/response utilities                                                            | [Examples ›](./examples/http.md)                |
-| Network (`network`)      | Network utilities                                                                          | [Examples ›](./examples/network.md)             |
-| Runtime (`runtime`)      | Runtime environment helpers                                                                | [Examples ›](./examples/runtime.md)             |
-| General (`utils`)        | Common utilities and guards                                                                | [Examples ›](./examples/utils.md)               |
+| Domain (Module)          | Description                                                                                | Examples                                      |
+| ------------------------ | ------------------------------------------------------------------------------------------ | --------------------------------------------- |
+| Data Types (`dataTypes`) | Helpers for `arrays`, `strings`, `numbers`, and more                                       | [Examples](./examples/dataTypes/dataTypes.md) |
+| Value Is (`valueIs`)     | Generic validations & type guards across multiple domains, including `instanceOf` and more | [Examples](./examples/valueIs.md)             |
+| Path (`path`)            | File and directory path utilities                                                          | [Examples](./examples/path.md)                |
+| File System (`fs`)       | Sync and async file operations, access checks                                              | [Examples](./examples/fs.md)                  |
+| HTTP (`http`)            | HTTP request/response utilities                                                            | [Examples](./examples/http.md)                |
+| Network (`networks`)     | Network utilities                                                                          | [Examples](./examples/networks/networks.md)   |
+| Runtime (`runtime`)      | Runtime environment helpers                                                                | [Examples](./examples/runtime.md)             |
+| General (`utils`)        | Common utilities and guards                                                                | [Examples](./examples/utils.md)               |
 
 ___
 ## License

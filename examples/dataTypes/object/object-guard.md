@@ -21,7 +21,7 @@ const objectsGuard = atomix.dataTypes.object.guard;
 
 
 ---
-## Examples
+## API Details
 
 ### 🧱 `isObject`
 Signature: `isObject(value: unknown): value is object`

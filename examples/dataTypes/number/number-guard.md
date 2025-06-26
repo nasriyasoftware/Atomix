@@ -24,7 +24,7 @@ const numbersGuard = atomix.dataTypes.number.guard;
 | [isPositive](#-ispositive) | Checks if a value is a positive number       |
 
 ---
-## Examples
+## API Details
 
 ### 🔢 `isFinite`
 Signature: `isFinite(value: unknown): value is number`

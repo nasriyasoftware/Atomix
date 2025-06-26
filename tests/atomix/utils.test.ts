@@ -14,7 +14,7 @@ describe("the 'utils' module", () => {
     it('should sleep correctly', async () => {
         const start = Date.now();
         await utils.sleep(1000);
-        const end = Date.now();
+        const end = Date.now();        
         expect(end - start).toBeGreaterThanOrEqual(1000);        
     })
 

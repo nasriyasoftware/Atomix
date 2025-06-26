@@ -33,7 +33,7 @@ const strings = atomix.dataTypes.string;
 | [truncate](#️-truncate)                           | Truncates string and adds ellipsis if needed      |
 
 ---
-## Examples
+## API Details
 
 ### ✍️ `capitalizeFirstLetter`
 Signature: `capitalizeFirstLetter(str: string): string`

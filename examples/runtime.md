@@ -26,7 +26,7 @@ const runtime = atomix.runtime;
 
 
 ---
-## Examples:
+## API Details:
 
 ### 🧾 `getProjectName`
 Signature: `getProjectName()`

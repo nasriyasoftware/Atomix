@@ -33,7 +33,7 @@ const arrays = atomix.dataTypes.array;
 | [shuffle](#-shuffle)         | Returns a shuffled copy of the array.               |
 
 ---
-## Examples
+## API Details
 
 ### 🔝 `head`
 Signature: `head<T>(array: T[]): T | undefined`

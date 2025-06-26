@@ -19,7 +19,7 @@ const regexGuard = atomix.dataTypes.regex.guard;
 | [isGlobLike](#-isgloblike) | Checks if a string contains glob-like wildcard chars (`*` or `?`) |
 
 ---
-## Examples
+## API Details
 
 ### 🔍 `isGlobLike`
 Signature: `isGlobLike(pattern: string): boolean`
