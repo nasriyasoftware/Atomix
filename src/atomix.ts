@@ -13,7 +13,20 @@ import commonUtils from './domains/utils/utils';
 import valueIs from './valueIs';
 
 export { mimeData } from './domains/http/mimes/mime-data';
-export type { Prettify, Mime, FileExtension, JSONObject, Stringified, NonEmptyArray, AccessPermissions, PathAccessPermissions, AccessOptions } from './docs/docs';
+export type {
+    Mime, FileExtension,
+    RRType,
+    TracerouteHop, PortCheckOptions,
+    IPGeolocation,
+    JSONObject, Stringified,
+    NonEmptyArray,
+    AccessPermissions, PathAccessPermissions, AccessOptions,
+    DiscoverHostsOptions,
+    DeepReadonly,
+    Objects,
+    Prettify,
+    StringPaddingOptions,
+} from './docs/docs';
 
 class Atomix {
     /**
