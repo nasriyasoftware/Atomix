@@ -72,6 +72,15 @@ atomix.fs;          // Access the File System domain
 | Runtime (`runtime`)      | Runtime environment helpers                                                                | [Examples](./examples/runtime.md)             |
 | General (`utils`)        | Common utilities and guards                                                                | [Examples](./examples/utils.md)               |
 
+---
+## Compatibility
+
+This package is built and tested on **Node.js v22.16.x** and later.  
+Earlier versions of Node.js are not guaranteed to be compatible.
+
+Also supports:
+- Bun (tested on v1.2.15+)
+- Deno (untested, may require polyfills)
 ___
 ## License
 This software is licensed under the **Nasriya Open License (NOL)**, version 1.0.

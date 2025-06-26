@@ -78,5 +78,10 @@ class Atomix {
     readonly utils = commonUtils;
 }
 
+/**
+ * @runtimeCompatibility
+ * Built and tested on Node.js v22.16.x and later.
+ * Compatibility with earlier Node versions is not guaranteed.
+ */
 const atomix = new Atomix;
 export default atomix;
