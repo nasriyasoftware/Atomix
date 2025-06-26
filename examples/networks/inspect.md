@@ -25,28 +25,35 @@ const inspector = atomix.networks.inspect;
 ## API Details
 
 ### 🔌 `isPortOpen`
-Signature: `isPortOpen(port: number, hostname?: string): Promise<boolean>`
+Signature: `isPortOpen(port: number, option?: { hostname?: string; timeout?: number }): Promise<boolean>`
+
+This method checks whether a TCP port is open on a given host by attempting to establish a connection.  
+It resolves `true` if successful, or `false` if the port is closed or the connection times out.
 
 Runtime compatibility:
 - Node.js: ✅ Fully supported
 - Bun: ✅ Supported (tested on v1.2.15+)
-- Deno: ❓ Untested, should work if net module is polyfilled
+- Deno: ❓ Untested (requires polyfill for `net` module)
+
+Example:
 
 ```ts
-const isOpen = await inspector.isPortOpen(80, 'example.com');
+const isOpen = await inspector.isPortOpen(80, { hostname: 'example.com', timeout: 500 });
 console.log(isOpen); // true or false
 ```
 
 ### 🛰️ `pingHost`
-Signature: `pingHost(hostname: string): Promise<boolean>`
+Signature: `pingHost(hostname: string, timeoutMs?: number): Promise<boolean>`
 
 Runtime compatibility:
 - Node.js: ✅ Fully supported (uses native ping command)
 - Bun: ✅ Supported
 - Deno: ❓ Untested — requires shell access
 
+Example:
+
 ```ts
-const isReachable = await inspector.pingHost('example.com');
+const isReachable = await inspector.pingHost('example.com', 2000); // timeout 2000ms
 console.log(isReachable); // true or false
 ```
 

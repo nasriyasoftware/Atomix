@@ -126,16 +126,29 @@ for (const [iface, ips] of networkMap.entries()) {
 ```
 
 ### 🔍 `discoverServiceHosts`
-Signature: `discoverServiceHosts(port: number, timeout?: number): Promise<string[]>`
+Signature: `discoverServiceHosts(port: number, options?: DiscoverHostsOptions): Promise<string[]>`
 
 Runtime compatibility:
 - Node.js: ✅ Supported
 - Bun: ✅ Supported
 - Deno: ❓ Untested
 
-Example:
+The options interface:
 ```ts
-// 🔍 Scan local network for hosts with port 80 open
-const openHosts = await localNetwork.discoverServiceHosts(80, 10000);
+DiscoverHostsOptions {
+  scanTimeout?: number; // total timeout for the full method
+  hostTimeout?: number; // timeout for each isPortOpen check
+}
+```
+
+Example:
+
+```ts
+// 🔍 Scan local network for hosts with port 80 open,
+// with a total scan timeout of 10 seconds and individual port check timeout of 100ms
+const openHosts = await localNetwork.discoverServiceHosts(80, {
+  scanTimeoutMs: 10000,
+  hostTimeout: 100
+});
 console.log('Hosts with port 80 open:', openHosts);
 ```

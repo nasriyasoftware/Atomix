@@ -17,8 +17,20 @@ describe("the 'path' module", () => {
     it("should sanitize filenames with illegal characters", () => {
         const name = "bad:name*file?.txt";
         const safe = atomix.path.sanitizeName(name);
-        expect(safe).not.toMatch(/[<>:"/\\|?*\x00-\x1F]/);
+        
+        const illegalChars = process.platform === "win32"
+            ? /[<>:"/\\|?*\x00-\x1F]/
+            : /[\/\x00]/;
+
+        expect(safe).not.toMatch(illegalChars);
         expect(safe).not.toBe("");
+
+        if (process.platform === "win32") {
+            // Also assert trailing dots/spaces removed
+            const withTrailing = atomix.path.sanitizeName("example. ");
+            expect(withTrailing.endsWith(" ")).toBe(false);
+            expect(withTrailing.endsWith(".")).toBe(false);
+        }
     });
 
     it("should correctly detect sub-path relationships", () => {

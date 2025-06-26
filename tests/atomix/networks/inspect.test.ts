@@ -7,12 +7,12 @@ const platform = os.platform();
 describe('atomix.networks.inspect module', () => {
     describe('isPortOpen', () => {
         it('should return a boolean', async () => {
-            const isOpen = await networkInspector.isPortOpen(80, 'google.com');
+            const isOpen = await networkInspector.isPortOpen(80, { hostname: 'google.com', timeout: 50 });
             expect(typeof isOpen).toBe('boolean');
         });
 
         it('should resolve false when port is closed (error)', async () => {
-            const isOpen = await networkInspector.isPortOpen(80, 'localhost');
+            const isOpen = await networkInspector.isPortOpen(80, { hostname: 'localhost', timeout: 50 });
             expect(isOpen).toBe(false);
         });
     });
@@ -24,7 +24,7 @@ describe('atomix.networks.inspect module', () => {
         });
 
         it('should resolve false when host is unreachable (error)', async () => {
-            const reachable = await networkInspector.pingHost('172.31.255.255');
+            const reachable = await networkInspector.pingHost('172.31.255.255', 300);
             expect(reachable).toBe(false);
         });
     });

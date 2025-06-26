@@ -122,19 +122,24 @@ class NetworkInspector {
     }
 
     /**
-     * Checks if a port is open on a given host.
+     * Checks if a TCP port is open on a given host.
      *
-     * Compatibility (tested):
-     * - Node.js: Supported (v10+)
-     * - Bun: Supported (v1.2.15+)
-     * - Deno: Untested (compatibility unknown)
+     * This method attempts to establish a TCP connection to the specified host and port.
+     * If the connection is successful, it resolves to true. If the connection is refused
+     * or times out, it resolves to false.
      *
-     * @param port - The port to check.
-     * @param hostname - The hostname to check the port on. Defaults to localhost.
-     * @returns {Promise<boolean>} A promise that resolves to true if the port is open, false if it is not.
+     * @param port - The TCP port number to check on the host. Must be between 0 and 65535.
+     * @param option - Optional options object containing a hostname and/or timeout value.
+     *   - `hostname`: The hostname of the host to check. Defaults to 'localhost'.
+     *   - `timeout`: The timeout in milliseconds. Defaults to 2000.
+     *
+     * @returns {Promise<boolean>} A promise that resolves to true if the port is open, false otherwise.
      * @since v1.0.0
      */
-    async isPortOpen(port: number, hostname?: string): Promise<boolean> {
+    async isPortOpen(port: number, option?: PortCheckOptions): Promise<boolean> {
+        const hostname = option?.hostname || 'localhost';
+        const timeout = option?.timeout || 2000;
+
         return new Promise(resolve => {
             const socket = net.createConnection({ port, host: hostname });
 
@@ -149,7 +154,7 @@ class NetworkInspector {
 
             // Bind error listener immediately
             socket.once('error', () => resolveOnce(false));
-            socket.setTimeout(2000, () => resolveOnce(false));
+            socket.setTimeout(timeout, () => resolveOnce(false));
             socket.once('connect', () => resolveOnce(true));
         })
     }
@@ -166,11 +171,17 @@ class NetworkInspector {
      * @throws {Error} If unable to ping the host.
      * @since v1.0.0
      */
-    async pingHost(hostname: string): Promise<boolean> {
+    async pingHost(hostname: string, timeoutMs = 2000): Promise<boolean> {
         try {
             const platform = process.platform;
             const countFlag = platform === 'win32' ? '-n' : '-c';
-            const command = `ping ${countFlag} 1 ${hostname}`;
+            // Timeout flag differs per platform:
+            // Windows: -w <timeout in ms>
+            // Unix: -W <timeout in seconds>
+            const timeoutFlag = platform === 'win32' ? '-w' : '-W';
+            const timeoutValue = platform === 'win32' ? timeoutMs : Math.ceil(timeoutMs / 1000);
+
+            const command = `ping ${countFlag} 1 ${timeoutFlag} ${timeoutValue} ${hostname}`;
 
             try {
                 await execAsync(command);
@@ -220,4 +231,17 @@ export interface TracerouteHop {
     hop: number;
     ips: (string)[];
     timesMs: number[];
+}
+
+export interface PortCheckOptions {
+    /**
+     * The hostname to check the port on.
+     * @default 'localhost'
+     */
+    hostname?: string;
+    /**
+     * The timeout in milliseconds for the port check.
+     * @default 2000
+     */
+    timeout?: number;
 }

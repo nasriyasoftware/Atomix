@@ -196,35 +196,53 @@ class LocalNetwork {
 
     /**
      * Scans the local network subnets for hosts that have the specified port open.
-     * 
+     *
      * This method enumerates all local network CIDRs, calculates all IP addresses
-     * within those subnets, and checks if the given port is open on each IP.
-     * 
-     * **Note:** This scan only targets your local network. It is not designed
+     * within those subnets, and checks if the given port is open on each IP using TCP.
+     *
+     * You can customize both the overall scan timeout and the timeout used for each
+     * individual host check.
+     *
+     * **Note:** This scan only targets the local network. It is not designed
      * to scan public or external IP addresses.
-     * 
+     *
      * @param port - The TCP port number to check on each local IP. Must be between 0 and 65535.
-     * @param timeout - Optional timeout in milliseconds. If the scan takes longer, it will abort with an error.
-     * 
+     * @param options - Optional object to configure timeouts:
+     *   - `scanTimeout`: Maximum total time (in ms) to allow for the full scan. If exceeded, the scan aborts with an error.
+     *   - `hostTimeout`: Timeout (in ms) to wait for each individual IP check before considering it unreachable.
+     *
      * @returns A promise that resolves to an array of IP addresses on the local network
      *          where the specified port is open.
-     * 
-     * @throws Will throw if the port is invalid or if the scan exceeds the specified timeout.
-     * 
+     *
+     * @throws Will throw if:
+     *   - The port is invalid.
+     *   - A timeout option is invalid.
+     *   - The scan times out (`SCAN_TIMEOUT` error).
+     *
      * @since v1.0.0
-     * 
+     *
      * @example
      * ```ts
-     * const openHosts = await networks.local.discoverServiceHosts(80, 10000);
+     * const openHosts = await networks.local.discoverServiceHosts(80, {
+     *   scanTimeout: 10000,
+     *   hostTimeout: 200
+     * });
      * console.log('Hosts with port 80 open:', openHosts);
      * ```
      */
-    async discoverServiceHosts(port: number, timeout?: number): Promise<string[]> {
+    async discoverServiceHosts(port: number, options?: DiscoverHostsOptions): Promise<string[]> {
         if (!networks.isValidPort(port)) { throw new Error(`Invalid port: ${port}. Must be between 0 and 65535`) }
-        if (timeout !== undefined) {
-            if (!numbersGuard.isNumber(timeout)) { throw new TypeError(`Invalid timeout: Expected number value but instead received ${typeof timeout}`) }
-            if (!numbersGuard.isInteger(timeout)) { throw new TypeError(`Invalid timeout: Expected integer but instead received ${timeout}`) }
-            if (!numbersGuard.isPositive(timeout)) { throw new TypeError(`Invalid timeout: Expected positive integer but instead received ${timeout}`) }
+
+        const { scanTimeout, hostTimeout } = options ?? {};
+
+        if (scanTimeout !== undefined) {
+            if (!numbersGuard.isNumber(scanTimeout)) { throw new TypeError(`Invalid scanTimeout: Expected number but got ${typeof scanTimeout}`) }
+            if (!numbersGuard.isInteger(scanTimeout) || !numbersGuard.isPositive(scanTimeout)) { throw new TypeError(`Invalid scanTimeout: Must be a positive integer`) }
+        }
+
+        if (hostTimeout !== undefined) {
+            if (!numbersGuard.isNumber(hostTimeout)) { throw new TypeError(`Invalid hostTimeout: Expected number but got ${typeof hostTimeout}`) }
+            if (!numbersGuard.isInteger(hostTimeout) || !numbersGuard.isPositive(hostTimeout)) { throw new TypeError(`Invalid hostTimeout: Must be a positive integer`) }
         }
 
         let aborted: boolean = false;
@@ -247,14 +265,14 @@ class LocalNetwork {
                         const checks = ips.map(ip => {
                             return (async () => {
                                 if (aborted) { return; }
-                                const open = await networkInspector.isPortOpen(port, ip);
+                                const open = await networkInspector.isPortOpen(port, { hostname: ip, timeout: hostTimeout });
                                 if (open) { openHosts.push(ip) }
                             })();
                         });
 
                         await Promise.all(checks);
                     }
-                    
+
                     resolve(openHosts);
                 } catch (error) {
                     reject(error);
@@ -263,13 +281,13 @@ class LocalNetwork {
                 }
             }
 
-            if (timeout !== undefined) {
+            if (scanTimeout !== undefined) {
                 timeoutTimer = setTimeout(() => {
                     aborted = true;
-                    const error = new Error(`Unable to scan local network for port ${port}: Scanning has timed out after ${timeout}ms`);
+                    const error = new Error(`Unable to scan local network for port ${port}: Scanning has timed out after ${scanTimeout}ms`);
                     error.cause = 'SCAN_TIMEOUT';
                     reject(error);
-                }, timeout);
+                }, scanTimeout);
             }
 
             void scanTask();
@@ -283,3 +301,8 @@ class LocalNetwork {
 
 const localNetwork = new LocalNetwork;
 export default localNetwork;
+
+export interface DiscoverHostsOptions {
+    scanTimeout?: number; // total timeout for the full method
+    hostTimeout?: number; // timeout for each isPortOpen check
+}

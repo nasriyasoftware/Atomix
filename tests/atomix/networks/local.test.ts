@@ -67,14 +67,16 @@ describe('localNetwork module', () => {
 
         it('should resolve to an array of IPs where the port is open', async () => {
             // Mock the method on the networkInspector instance
-            jest.spyOn(networks.inspect, 'isPortOpen').mockImplementation((_, ip) =>
-                Promise.resolve(ip!.endsWith('.2') || ip!.endsWith('.5'))
-            );
+            jest.spyOn(networks.inspect, 'isPortOpen').mockImplementation((_, options_) => {
+                const options = options_!;
+                const isOpen = options.hostname!.endsWith('.2') || options.hostname!.endsWith('.5')
+                return Promise.resolve(isOpen);
+            });
 
             jest.spyOn(localNetwork, 'getNetworkCIDRs').mockReturnValue(['192.168.1.0/30']);
             jest.spyOn(networks, 'getSubnetIPs').mockReturnValue(['192.168.1.1', '192.168.1.2', '192.168.1.3']);
 
-            const openHosts = await localNetwork.discoverServiceHosts(80, 5000);
+            const openHosts = await localNetwork.discoverServiceHosts(80);
 
             expect(openHosts).toContain('192.168.1.2');
             expect(openHosts).not.toContain('192.168.1.1');
@@ -89,16 +91,16 @@ describe('localNetwork module', () => {
 
         it('should throw on invalid timeout', async () => {
             const port = 80;
-            const errorMsg = `Invalid timeout: Expected number value but instead received ${typeof 'not a number'}`;
+            const errorMsg = `Invalid scanTimeout: Expected number but got ${typeof 'not a number'}`;
             // @ts-ignore - deliberately passing wrong type
-            await expect(localNetwork.discoverServiceHosts(port, 'not a number')).rejects.toThrow(errorMsg);
+            await expect(localNetwork.discoverServiceHosts(port, { scanTimeout: 'not a number' })).rejects.toThrow(errorMsg);
         });
 
         it('should reject if timeout expires', async () => {
             const port = 80;
             const timeout = 100;
             const errorMsg = `Unable to scan local network for port ${port}: Scanning has timed out after ${timeout}ms`;
-            await expect(localNetwork.discoverServiceHosts(port, timeout)).rejects.toThrow(errorMsg);
+            await expect(localNetwork.discoverServiceHosts(port, { scanTimeout: timeout })).rejects.toThrow(errorMsg);
         });
     });
 });

@@ -1,10 +1,11 @@
 export type { Mime, FileExtension } from "../domains/http/mimes/mimes";
 export type { RRType } from "../domains/network/assets/dns";
-export type { TracerouteHop } from "../domains/network/assets/inspect";
+export type { TracerouteHop, PortCheckOptions } from "../domains/network/assets/inspect";
 export type { IPGeolocation } from "../domains/network/assets/remote";
 export type { JSONObject, Stringified } from "../domains/data-types/object/docs";
 export type { NonEmptyArray } from "../domains/data-types/array/docs";
 export type { AccessPermissions, PathAccessPermissions, AccessOptions } from "../domains/file-system/docs";
+export type { DiscoverHostsOptions } from "../domains/network/assets/local";
 
 export type DeepReadonly<T> = {
     readonly [P in keyof T]: T[P] extends (...args: any[]) => any
