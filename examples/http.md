@@ -46,6 +46,13 @@ const http = atomix.http;
 | `btoa(text)`   | Encode UTF-8 text to Base64 |
 | `atob(base64)` | Decode Base64 to UTF-8 text |
 
+### 4. Body Codec (Structured Transport)
+
+| Method                     | Description                                                     |
+| -------------------------- | --------------------------------------------------------------- |
+| `bodyCodec.encode(value)`  | Encode serializable value into a Buffer for transport over HTTP |
+| `bodyCodec.decode(buffer)` | Decode a Buffer back into the original structured value         |
+
 ---
 ## API Details
 
@@ -104,4 +111,20 @@ console.log(encoded); // "SGVsbG8sIHdvcmxkIQ=="
 
 const decoded = http.atob(encoded);
 console.log(decoded); // "Hello, world!"
+```
+
+### Body Codec
+
+```ts
+const bodyCodec = atomix.http.bodyCodec;
+
+// Encode any structured value
+const payload = { userId: 42, active: true, tags: ['a', 'b'] };
+const buffer = bodyCodec.encode(payload);
+
+// Send `buffer` as raw body over HTTP, or store in cache
+
+// Later decode it back
+const restored = bodyCodec.decode(buffer);
+console.log(restored); // { userId: 42, active: true, tags: ['a', 'b'] }
 ```

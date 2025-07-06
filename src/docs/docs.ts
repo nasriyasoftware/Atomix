@@ -6,6 +6,7 @@ export type { JSONObject, Stringified } from "../domains/data-types/object/docs"
 export type { NonEmptyArray } from "../domains/data-types/array/docs";
 export type { AccessPermissions, PathAccessPermissions, AccessOptions } from "../domains/file-system/docs";
 export type { DiscoverHostsOptions } from "../domains/network/assets/local";
+export type { Serializable } from "../domains/http/body-codec";
 
 export type DeepReadonly<T> = {
     readonly [P in keyof T]: T[P] extends (...args: any[]) => any

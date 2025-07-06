@@ -20,7 +20,14 @@ class RecordsGuard {
      * recordsGuard.isRecord(invalid); // ❌ false
      */
     isRecord(value: unknown): value is Record<string, any> {
-        return typeof value === 'object' && value !== null && !Array.isArray(value);
+        return typeof value === 'object' &&
+            value !== null &&
+            !Array.isArray(value) &&
+            !(value instanceof Set) &&
+            !(value instanceof Map) &&
+            !(value instanceof Date) &&
+            !(value instanceof RegExp) &&
+            Object.getPrototypeOf(value) === Object.prototype;
     }
 
     /**

@@ -53,4 +53,42 @@ describe("the 'http' module", () => {
         expect(http.guard.isMimeType([] as any)).toBe(false);
         expect(http.guard.isMimeType(new Date() as any)).toBe(false);
     })
+
+    it("should encode and decode values using 'bodyCodec'", () => {
+        const samples: unknown[] = [
+            'hello',
+            42,
+            false,
+            null,
+            undefined,
+            [1, 'a', true],
+            { key: 'value', num: 99 },
+            new Set([1, 2, 3]),
+            new Map([
+                ['a', 1],
+                ['b', 2],
+            ]),
+        ];
+
+        for (const sample of samples) {
+            const encoded = http.bodyCodec.encode(sample as any);
+            const decoded = http.bodyCodec.decode(encoded);
+            expect(decoded).toEqual(sample);
+        }
+    });
+
+    it("should throw on encoding a function", () => {
+        expect(() => {
+            http.bodyCodec.encode(() => { });
+        }).toThrow(TypeError);
+    });
+
+    it("should throw on encoding circular structures", () => {
+        const obj: any = {};
+        obj.self = obj;
+
+        expect(() => {
+            http.bodyCodec.encode(obj);
+        }).toThrow(TypeError);
+    });
 });
