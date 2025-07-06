@@ -26,7 +26,8 @@ export type {
     Objects,
     Prettify,
     StringPaddingOptions,
-    Serializable
+    Serializable,
+    RandomOptions
 } from './docs/docs';
 
 class Atomix {
