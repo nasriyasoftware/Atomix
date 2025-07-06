@@ -71,7 +71,7 @@ atomix.fs;          // Access the File System domain
 | Network (`networks`)     | Network utilities                                                                          | [Examples](./examples/networks/networks.md)   |
 | Runtime (`runtime`)      | Runtime environment helpers                                                                | [Examples](./examples/runtime.md)             |
 | General (`utils`)        | Common utilities and guards                                                                | [Examples](./examples/utils.md)               |
-| Tools (`tools`)          | Advanced utility classes such as `TaskQueue` for managing async workflows                  | [Examples](./examples/tools/tools.md)               |
+| Tools (`tools`)          | Advanced utility classes such as `TaskQueue` for managing async workflows                  | [Examples](./examples/tools/tools.md)         |
 
 ---
 ## Compatibility

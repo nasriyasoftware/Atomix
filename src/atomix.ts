@@ -15,66 +15,73 @@ import valueIs from './valueIs';
 
 class Atomix {
     /**
-     * A collection of guard functions to check if a value is of a specific type.
+     * Type guard functions for validating and narrowing values at runtime.
+     * Useful for safely checking primitives, instances, and complex structures.
      * @since v1.0.0
      */
     readonly valueIs = valueIs;
 
     /**
-     * A module containing utility functions for working with
-     * JavaScript data types
+     * Utilities for working with core JavaScript data types, organized by type.
+     * Includes helpers for strings, numbers, arrays, objects, records, and regex.
      * @since v1.0.0
      */
-    readonly dataTypes = {
+    readonly dataTypes = objectsUtils.freeze({
         string: stringsUtils,
         number: numbersUtils,
         object: objectsUtils,
         record: recordsUtils,
         array: arraysUtils,
         regex: regexUtils,
-    }
+    })
 
     /**
-     * A module containing utility functions for working with
-     * file paths.
+     * Path utilities for working with and manipulating file system paths.
+     * Compatible with cross-platform path operations.
      * @since v1.0.0
      */
     readonly path = pathUtils;
 
     /**
-     * A module containing utility functions for working with
-     * the file system.
+     * File system utilities for reading, writing, and checking files/directories.
+     * Supports both sync and async operations.
      * @since v1.0.0
      */
     readonly fs = fileSystem;
 
     /**
-     * A module containing utility functions for working with
-     * HTTP requests and responses.
+     * HTTP-related utilities for encoding, decoding, and managing request/response bodies.
+     * Includes support for body codecs and common header handling.
      * @since v1.0.0
      */
     readonly http = httpUtils;
 
     /**
-     * A module containing utility functions for working with
-     * the network.
+     * Network utilities for interacting with local/remote addresses, DNS, ports, and tracing.
+     * Useful for diagnostics and runtime-aware networking.
      * @since v1.0.0
      */
     readonly networks = networks;
 
     /**
-     * A module containing utility functions for working with
-     * the runtime environment.
+     * Environment utilities for determining runtime characteristics,
+     * such as platform, OS, environment variables, and process metadata.
      * @since v1.0.0
      */
     readonly runtime = runtime;
 
     /**
-     * A module containing general and common utility functions
+     * General-purpose utility functions and safe wrappers around common JS operations.
+     * Includes cloning, comparison, type-safe conversions, and more.
      * @since v1.0.0
      */
     readonly utils = commonUtils;
 
+    /**
+     * A collection of higher-level tools such as task queues and background managers.
+     * Built for coordination, orchestration, and async workflows.
+     * @since v1.0.2
+     */
     readonly tools = tools;
 }
 
