@@ -9,26 +9,9 @@ import httpUtils from './domains/http/http-utils';
 import networks from './domains/network/network-utils';
 import pathUtils from './domains/path/path';
 import runtime from './domains/runtime/runtime';
+import tools from './tools/tools';
 import commonUtils from './domains/utils/utils';
 import valueIs from './valueIs';
-
-export { mimeData } from './domains/http/mimes/mime-data';
-export type {
-    Mime, FileExtension,
-    RRType,
-    TracerouteHop, PortCheckOptions,
-    IPGeolocation,
-    JSONObject, Stringified,
-    NonEmptyArray,
-    AccessPermissions, PathAccessPermissions, AccessOptions,
-    DiscoverHostsOptions,
-    DeepReadonly,
-    Objects,
-    Prettify,
-    StringPaddingOptions,
-    Serializable,
-    RandomOptions
-} from './docs/docs';
 
 class Atomix {
     /**
@@ -91,6 +74,8 @@ class Atomix {
      * @since v1.0.0
      */
     readonly utils = commonUtils;
+
+    readonly tools = tools;
 }
 
 /**

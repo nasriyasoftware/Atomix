@@ -77,5 +77,8 @@
     "@types/node": "^24.0.4",
     "jest": "^30.0.3",
     "ts-jest": "^29.4.0"
+  },
+  "dependencies": {
+    "@nasriya/uuidx": "^1.0.3"
   }
 }
