@@ -303,6 +303,17 @@ export class TaskQueue {
             this.#_userHandlers.onIdle.push(resolve);
         });
     }
+
+    /**
+     * Checks if a task with the specified ID exists in the task queue.
+     *
+     * @param id - The unique identifier of the task to check for existence.
+     * @returns {boolean} True if the task with the specified ID exists in the queue, false otherwise.
+     * @since v1.0.6
+     */
+    hasTask(id: string): boolean {
+        return this.#_helpers.id.list.includes(id);
+    }
 }
 
 export default TaskQueue;

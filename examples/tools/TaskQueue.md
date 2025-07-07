@@ -76,6 +76,16 @@ Useful for waiting for queue idle state.
 
 Generates a unique task ID guaranteed to not clash with current queue task IDs.
 
+
+### `hasTask`
+**Signature:** `hasTask(id: string): boolean`
+
+Checks if a task with the given ID exists in the queue.
+
+```ts
+const hasTask = taskQueue.hasTask('task-id');
+```
+
 ### `stats`
 **Signature:**
 ```ts
