@@ -61,3 +61,9 @@ export interface BaseQueueTask<T = any, K extends Record<string, any> = Record<s
     /** Optional callback executed when the task completes, regardless of success or failure. */
     onDone?: () => any | Promise<any>;
 }
+
+export interface InternalQueueTask extends BaseQueueTask {
+    id: string;
+    priority: TaskPriorityLevel;
+    metadata: Record<string, any>;
+}

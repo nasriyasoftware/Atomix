@@ -1,6 +1,6 @@
 import uuidX from "@nasriya/uuidx";
 import atomix from "../../atomix";
-import { BaseQueueTask, TaskPriorityLevel } from "./docs";
+import { BaseQueueTask, InternalQueueTask, TaskPriorityLevel } from "./docs";
 
 /**
  * The general-purpose prioritized task queue utility.
@@ -24,7 +24,7 @@ import { BaseQueueTask, TaskPriorityLevel } from "./docs";
  */
 export class TaskQueue {
     readonly #_flags = Object.seal({ isRunning: false })
-    readonly #_queues: Map<TaskPriorityLevel, BaseQueueTask[]> = new Map([
+    readonly #_queues: Map<TaskPriorityLevel, InternalQueueTask[]> = new Map([
         [0, []], [1, []], [2, []], [3, []],
     ]);
 
@@ -33,7 +33,7 @@ export class TaskQueue {
      * being searched first. If all queues are empty, returns undefined.
      * @returns the next task, or undefined if all queues are empty
      */
-    #_getNextTask(): BaseQueueTask | undefined {
+    #_getNextTask(): InternalQueueTask | undefined {
         const priorityLevels: TaskPriorityLevel[] = [0, 1, 2, 3];
         for (const level of priorityLevels) {
             const queue = this.#_queues.get(level)!;
@@ -91,7 +91,7 @@ export class TaskQueue {
     }
 
     readonly #_handlers = {
-        onResolve: (task: BaseQueueTask, userData: any) => {
+        onResolve: (task: InternalQueueTask, userData: any) => {
             this.#_stats.succeeded++;
 
             // Run user onResolve callback
@@ -101,7 +101,7 @@ export class TaskQueue {
                 this.#_helpers.logger.taskCallbackError('onResolve', task.id, callbackError);
             }
         },
-        onReject: (task: BaseQueueTask, error: any) => {
+        onReject: (task: InternalQueueTask, error: any) => {
             this.#_stats.failed++;
 
             // Run user onReject callback
@@ -111,7 +111,7 @@ export class TaskQueue {
                 this.#_helpers.logger.taskCallbackError('onReject', task.id, callbackError);
             }
         },
-        onDone: (task: BaseQueueTask) => {
+        onDone: (task: InternalQueueTask) => {
             this.#_helpers.id.remove(task.id);
             this.#_stats.processed++;
 
@@ -269,7 +269,7 @@ export class TaskQueue {
      */
     addTask(task: BaseQueueTask) {
         this.#_helpers.validateTask(task);
-        this.#_queues.get(task.priority ?? 3)!.push(task);
+        this.#_queues.get(task.priority ?? 3)!.push(task as InternalQueueTask);
         this.#_stats.total++;
         this.#_run();
     }
@@ -284,7 +284,7 @@ export class TaskQueue {
      */
     bulkAddTasks(tasks: BaseQueueTask[]) {
         tasks.forEach(task => this.#_helpers.validateTask(task));
-        tasks.forEach(task => this.#_queues.get(task.priority ?? 3)!.push(task));
+        tasks.forEach(task => this.#_queues.get(task.priority ?? 3)!.push(task as InternalQueueTask));
         this.#_stats.total += tasks.length;
         this.#_run();
     }
