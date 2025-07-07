@@ -1,6 +1,6 @@
 import uuidX from "@nasriya/uuidx";
 import atomix from "../../atomix";
-import { BaseCacheTask, TaskPriorityLevel } from "./docs";
+import { BaseQueueTask, TaskPriorityLevel } from "./docs";
 
 /**
  * The general-purpose prioritized task queue utility.
@@ -24,7 +24,7 @@ import { BaseCacheTask, TaskPriorityLevel } from "./docs";
  */
 export class TaskQueue {
     readonly #_flags = Object.seal({ isRunning: false })
-    readonly #_queues: Map<TaskPriorityLevel, BaseCacheTask[]> = new Map([
+    readonly #_queues: Map<TaskPriorityLevel, BaseQueueTask[]> = new Map([
         [0, []], [1, []], [2, []], [3, []],
     ]);
 
@@ -33,7 +33,7 @@ export class TaskQueue {
      * being searched first. If all queues are empty, returns undefined.
      * @returns the next task, or undefined if all queues are empty
      */
-    #_getNextTask(): BaseCacheTask | undefined {
+    #_getNextTask(): BaseQueueTask | undefined {
         const priorityLevels: TaskPriorityLevel[] = [0, 1, 2, 3];
         for (const level of priorityLevels) {
             const queue = this.#_queues.get(level)!;
@@ -91,7 +91,7 @@ export class TaskQueue {
     }
 
     readonly #_handlers = {
-        onResolve: (task: BaseCacheTask, userData: any) => {
+        onResolve: (task: BaseQueueTask, userData: any) => {
             this.#_stats.succeeded++;
 
             // Run user onResolve callback
@@ -101,7 +101,7 @@ export class TaskQueue {
                 this.#_helpers.logger.taskCallbackError('onResolve', task.id, callbackError);
             }
         },
-        onReject: (task: BaseCacheTask, error: any) => {
+        onReject: (task: BaseQueueTask, error: any) => {
             this.#_stats.failed++;
 
             // Run user onReject callback
@@ -111,7 +111,7 @@ export class TaskQueue {
                 this.#_helpers.logger.taskCallbackError('onReject', task.id, callbackError);
             }
         },
-        onDone: (task: BaseCacheTask) => {
+        onDone: (task: BaseQueueTask) => {
             this.#_helpers.id.remove(task.id);
             this.#_stats.processed++;
 
@@ -179,7 +179,7 @@ export class TaskQueue {
                 console.debug(err.stack);
             }
         },
-        validateTask: (task: BaseCacheTask) => {
+        validateTask: (task: BaseQueueTask) => {
             if (!atomix.valueIs.record(task)) { throw new TypeError(`Task is expected to be a record, but got ${typeof task}`) }
             const hasOwnProperty = atomix.dataTypes.record.hasOwnProperty.bind(atomix.dataTypes.record);
             let id: string;
@@ -267,7 +267,7 @@ export class TaskQueue {
      * @param task - The task to be added to the queue.
      * @since v1.0.2
      */
-    addTask(task: BaseCacheTask) {
+    addTask(task: BaseQueueTask) {
         this.#_helpers.validateTask(task);
         this.#_queues.get(task.priority ?? 3)!.push(task);
         this.#_stats.total++;
@@ -282,7 +282,7 @@ export class TaskQueue {
      * @param tasks - An array of tasks to be added to the queue.
      * @since v1.0.2
      */
-    bulkAddTasks(tasks: BaseCacheTask[]) {
+    bulkAddTasks(tasks: BaseQueueTask[]) {
         tasks.forEach(task => this.#_helpers.validateTask(task));
         tasks.forEach(task => this.#_queues.get(task.priority ?? 3)!.push(task));
         this.#_stats.total += tasks.length;

@@ -25,7 +25,7 @@ const taskQueue = new TaskQueue();
 
 ## API Reference
 
-### `BaseCacheTask`
+### `BaseQueueTask`
 This is the shape of a task that the queue can run. It has:
 
 - A unique `id` (you can generate it or let the queue create one).
@@ -36,7 +36,7 @@ This is the shape of a task that the queue can run. It has:
 - Optional callbacks for success (`onResolve`), failure (`onReject`), and completion (`onDone`).
 
 ```ts
-interface BaseCacheTask<T = any, K extends Record<string, any> = Record<string, any>> {
+interface BaseQueueTask<T = any, K extends Record<string, any> = Record<string, any>> {
     id: string;
     type: string;
     priority?: TaskPriorityLevel;
@@ -49,19 +49,19 @@ interface BaseCacheTask<T = any, K extends Record<string, any> = Record<string, 
 ```
 
 ### `addTask`
-**Signature:** `addTask(task: BaseCacheTask): void`
+**Signature:** `addTask(task: BaseQueueTask): void`
 
 Adds a single task to the queue.
 - **Parameters**:
-  - `task` — An object implementing the `BaseCacheTask` interface.
+  - `task` — An object implementing the `BaseQueueTask` interface.
 - **Throws**: Type errors or range errors if the task properties are invalid or duplicate IDs are detected.
 
 ### `bulkAddTasks`
-**Signature:** `bulkAddTasks(tasks: BaseCacheTask[]): void`
+**Signature:** `bulkAddTasks(tasks: BaseQueueTask[]): void`
 
 Adds multiple tasks at once.
 - **Parameters**:
-    - `tasks` — Array of BaseCacheTask objects.
+    - `tasks` — Array of BaseQueueTask objects.
 
 - **Throws**: Same validation as addTask for each task.
 
@@ -118,7 +118,7 @@ Errors thrown inside these callbacks are caught and logged internally.
 
 Imagine you have an app that processes payments. You want to ensure each payment is handled in order, safely, and you want to track success or failure for each payment.
 
-First, define a custom task interface by extending `BaseCacheTask` with payment-specific metadata and result types:
+First, define a custom task interface by extending `BaseQueueTask` with payment-specific metadata and result types:
 
 ```ts
 interface PaymentResult {
@@ -133,7 +133,7 @@ interface PaymentMetadata {
   paymentMethod: string;
 }
 
-interface PaymentTask extends BaseCacheTask<PaymentResult, PaymentMetadata> {
+interface PaymentTask extends BaseQueueTask<PaymentResult, PaymentMetadata> {
   type: 'process-payment';
 }
 ```

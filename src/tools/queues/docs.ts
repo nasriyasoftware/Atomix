@@ -8,7 +8,7 @@ export type TaskPriorityLevel = 0 | 1 | 2 | 3; // 0 = highest, 3 = lowest
  * @template T The type of the result produced by the task's action.
  * @template K The shape of the metadata passed to the task's action.
  */
-export interface BaseCacheTask<T = any, K extends Record<string, any> = Record<string, any>> {
+export interface BaseQueueTask<T = any, K extends Record<string, any> = Record<string, any>> {
     /**
      * A unique identifier for the task.
      * Can be generated via the queue manager's `generateTaskId()` method,
