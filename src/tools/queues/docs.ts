@@ -14,7 +14,7 @@ export interface BaseQueueTask<T = any, K extends Record<string, any> = Record<s
      * Can be generated via the queue manager's `generateTaskId()` method,
      * or provided by the user. Must be unique within the queue.
      */
-    id: string;
+    id?: string;
 
     /**
      * A string indicating the task's type or category.

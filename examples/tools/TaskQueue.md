@@ -37,7 +37,7 @@ This is the shape of a task that the queue can run. It has:
 
 ```ts
 interface BaseQueueTask<T = any, K extends Record<string, any> = Record<string, any>> {
-    id: string;
+    id?: string;
     type: string;
     priority?: TaskPriorityLevel;
     metadata?: K;
