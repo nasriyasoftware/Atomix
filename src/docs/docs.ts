@@ -8,6 +8,7 @@ export type { AccessPermissions, PathAccessPermissions, AccessOptions } from "..
 export type { DiscoverHostsOptions } from "../domains/network/assets/local";
 export type { Serializable } from "../domains/http/body-codec";
 export type { RandomOptions } from "../domains/utils/docs";
+export type { BaseQueueTask } from "../tools/queues/docs";
 
 export type DeepReadonly<T> = {
     readonly [P in keyof T]: T[P] extends (...args: any[]) => any

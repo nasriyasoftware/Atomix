@@ -14,5 +14,6 @@ export type {
     Prettify,
     StringPaddingOptions,
     Serializable,
-    RandomOptions
+    RandomOptions,
+    BaseQueueTask,
 } from './docs/docs';
