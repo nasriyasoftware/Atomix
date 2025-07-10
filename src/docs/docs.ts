@@ -105,3 +105,72 @@ export type DeepReadonly<T> = {
 export type Prettify<T> = {
     [K in keyof T]: T[K];
 } & {};
+
+declare const brand: unique symbol;
+/**
+ * Creates a *branded* version of a base type, allowing nominal typing in TypeScript.
+ *
+ * By default, TypeScript uses *structural typing*, which means types with the same shape are considered interchangeable.
+ * `Brand<T, B>` allows you to distinguish between otherwise identical types by attaching a unique hidden "brand" to the type.
+ *
+ * This is useful for creating safer APIs where different domains use the same primitive types (like `string` or `number`)
+ * but should not be mixed up unintentionally.
+ *
+ * @template T - The base type to brand (e.g. `string`, `number`, etc).
+ * @template Brand - A string literal representing the brand (e.g. `'UserId'`, `'FilePath'`).
+ *
+ * @example
+ * ```ts
+ * type UserId = Brand<string, 'UserId'>;
+ * type PostId = Brand<string, 'PostId'>;
+ *
+ * function getUser(id: UserId) { ... }
+ *
+ * const userId = 'abc123' as UserId;
+ * const postId = 'xyz789' as PostId;
+ *
+ * getUser(userId); // ✅ OK
+ * getUser(postId); // ❌ Type error: PostId is not assignable to UserId
+ * ```
+ *
+ * @example
+ * ```ts
+ * // Branded number
+ * type Milliseconds = Brand<number, 'Milliseconds'>;
+ * type Seconds = Brand<number, 'Seconds'>;
+ *
+ * const wait = (ms: Milliseconds) => { ... };
+ * wait(5000 as Milliseconds); // ✅
+ * wait(5 as Seconds);         // ❌ Compile error
+ * ```
+ *
+ * @note This has no runtime effect. The brand is erased in the compiled JavaScript.
+ * @since v1.0.7
+ */
+export type Brand<T, Brand extends string> = T & { [brand]: Brand };
+
+/**
+ * Filters out "loose" string types like the built-in `string` type,
+ * leaving only "strict" string types such as string literals or narrower unions.
+ *
+ * This is useful when you want to **exclude broad string types** and keep
+ * only more specific, literal string types in a union.
+ *
+ * The type distributes over unions, testing each member individually.
+ *
+ * @example
+ * type Test1 = LooseToStrict<string>;
+ * // Result: never (excluded because `string` extends `string`)
+ *
+ * @example
+ * type Test2 = LooseToStrict<'hello' | string>;
+ * // Result: 'hello' (excludes `string`, keeps the literal)
+ *
+ * @example
+ * type Test3 = LooseToStrict<'foo' | 'bar'>;
+ * // Result: 'foo' | 'bar' (kept because `string` does NOT extend these literals)
+ *
+ * @template T - The type or union of types to filter.
+ * @since v1.0.7
+ */
+export type LooseToStrict<T> = T extends any ? (string extends T ? never : T) : never;
