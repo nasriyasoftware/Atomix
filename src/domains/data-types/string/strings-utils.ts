@@ -2,7 +2,6 @@ import stringsGuard from "./strings-guard";
 import numbersGuard from "../number/numbers-guard";
 import recordsUtils from "../record/records-utils";
 import commonUtils from "../../utils/utils";
-import { StringPaddingOptions } from "../../../docs/docs";
 
 class StringsUtils {
     /**
@@ -301,3 +300,29 @@ class StringsUtils {
 
 const stringsUtils = new StringsUtils;
 export default stringsUtils;
+
+export interface StringPaddingOptions {
+    /**
+     * The side to pad the string on.
+     * 
+     * @default 'start'
+     * @since v1.0.0
+     */
+    side?: 'start' | 'end' | 'both',
+    /**
+     * The character to fill the padding with.
+     * 
+     * @default ' ' // Empty character
+     * @since v1.0.0
+     */
+    fillChar?: string,
+    /**
+     * Whether to fill the padding with random characters.
+     * 
+     * **Important:** This will override the `fillChar` option.
+     * 
+     * @default false
+     * @since v1.0.0
+     */
+    random?: boolean
+}
