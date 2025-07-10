@@ -91,4 +91,100 @@ describe("the 'http' module", () => {
             http.bodyCodec.encode(obj);
         }).toThrow(TypeError);
     });
+
+    describe('http.sanatize (string input)', () => {
+        it('should trim and remove HTML by default', () => {
+            const result = http.sanatize('  <b>Hello</b>  ');
+            expect(result.ok).toBe(false); // because of HTML removal
+            expect(result.violations).toHaveLength(1); // Only 'html' is tracked
+            expect(result.violations[0].rule).toBe('html');
+        });
+
+        it('should allow HTML if allowHTML is true', () => {
+            const result = http.sanatize('<b>Hello</b>', { allowHTML: true });
+            expect(result.output).toBe('<b>Hello</b>');
+            expect(result.ok).toBe(true);
+            expect(result.violations).toHaveLength(0);
+        });
+
+        it('should remove Unicode characters by default', () => {
+            const result = http.sanatize('Hi 👋');
+            expect(result.output).toBe('Hi');
+            expect(result.ok).toBe(false);
+            expect(result.violations[0].rule).toBe('unicode');
+        });
+
+        it('should allow Unicode if allowUnicode is true', () => {
+            const result = http.sanatize('Hi 👋', { allowUnicode: true });
+            expect(result.output).toBe('Hi 👋');
+            expect(result.ok).toBe(true);
+        });
+
+        it('should apply deny pattern', () => {
+            const result = http.sanatize('hello$', { deny: /\$/g });
+            expect(result.output).toBe('hello');
+            expect(result.ok).toBe(false);
+            expect(result.violations[0].rule).toBe('deny');
+        });
+
+        it('should apply allow pattern', () => {
+            const result = http.sanatize('abc123!@#', { allow: /[a-z]/g });
+            expect(result.output).toBe('abc');
+            expect(result.ok).toBe(false);
+            expect(result.violations[0].rule).toBe('allow');
+        });
+
+        it('should enforce max length', () => {
+            const result = http.sanatize('abcdefgh', { maxLength: 5 });
+            expect(result.output).toBe('abcde');
+            expect(result.ok).toBe(false);
+            expect(result.violations[0].rule).toBe('length');
+        });
+
+        it('should throw if strict mode is enabled and a rule is violated', () => {
+            expect(() =>
+                http.sanatize('<hi>', { allowHTML: false, strict: true })
+            ).toThrow(/Sanitization violation/);
+        });
+    });
+
+    describe('http.sanatize (record input)', () => {
+        it('should sanitize each field individually', () => {
+            const input = {
+                username: '  <admin>',
+                bio: 'Hello 👋',
+            };
+
+            const result = http.sanatize(input, {
+                username: { allowHTML: false },
+                bio: { allowUnicode: false },
+            });
+
+            expect(result.ok).toBe(false);
+            expect(result.output.username).toBe('');
+            expect(result.output.bio).toBe('Hello');
+            expect(result.violations.username[0].rule).toBe('html');
+            expect(result.violations.bio[0].rule).toBe('unicode');
+        });
+
+        it('should handle empty config (defaults)', () => {
+            const input = { name: '  <b>John</b> 👋 ' };
+            const result = http.sanatize(input);
+
+            expect(result.ok).toBe(false);
+            expect(result.output.name).toBe('John');
+            expect(result.violations.name.length).toBeGreaterThan(0);
+        });
+
+        it('should throw if input is not a string or record', () => {
+            expect(() => http.sanatize(123 as any)).toThrow(TypeError);
+        });
+
+        it('should return ok=true and no violations when input is clean', () => {
+            const input = 'hello';
+            const result = http.sanatize(input);
+            expect(result.ok).toBe(true);
+            expect(result.violations).toHaveLength(0);
+        });
+    });
 });

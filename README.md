@@ -68,7 +68,7 @@ atomix.fs;          // Access the File System domain
 | Path (`path`)            | File and directory path utilities                                                          | [Examples](./examples/path.md)                |
 | File System (`fs`)       | Sync and async file operations, access checks                                              | [Examples](./examples/fs.md)                  |
 | HTTP (`http`)            | HTTP request/response utilities                                                            | [Examples](./examples/http.md)                |
-| Network (`networks`)     | Network utilities                                                                          | [Examples](./examples/networks/networks.md)   |
+| Network (`networks`)     | Network utilities                                                                          | [Examples](./examples/networks.md)            |
 | Runtime (`runtime`)      | Runtime environment helpers                                                                | [Examples](./examples/runtime.md)             |
 | General (`utils`)        | Common utilities and guards                                                                | [Examples](./examples/utils.md)               |
 | Tools (`tools`)          | Advanced utility classes such as `TaskQueue` for managing async workflows                  | [Examples](./examples/tools/tools.md)         |

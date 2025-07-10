@@ -12,12 +12,12 @@ const networks = atomix.networks;
 ---
 ## Available Modules
 
-| Module                  | Description                                                      |
-| ----------------------- | ---------------------------------------------------------------- |
-| [local](./local.md)     | Access local IPs, hostnames, and network interfaces              |
-| [remote](./remote.md)   | Interact with remote endpoints, such as retrieving the public IP |
-| [dns](./dns.md)         | Perform DNS lookups and reverse queries                          |
-| [inspect](./inspect.md) | Analyze ports, scan services, and trace network routes           |
+| Module                           | Description                                                      |
+| -------------------------------- | ---------------------------------------------------------------- |
+| [local](./networks/local.md)     | Access local IPs, hostnames, and network interfaces              |
+| [remote](./networks/remote.md)   | Interact with remote endpoints, such as retrieving the public IP |
+| [dns](./networks/dns.md)         | Perform DNS lookups and reverse queries                          |
+| [inspect](./networks/inspect.md) | Analyze ports, scan services, and trace network routes           |
 
 
 ## Core APIs
