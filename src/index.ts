@@ -14,5 +14,6 @@ export type {
     Serializable,
     RandomOptions,
     BaseQueueTask,
+    EventHandler, AddHandlerOptions,
     InputSanitizationOptions, FieldRuleMap, SanitizedResult, SanitizationViolation,
 } from './docs/docs';

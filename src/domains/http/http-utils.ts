@@ -8,7 +8,7 @@ import { InputSanitizationOptions, SanitizedResult, SanitizationViolation, Input
 class HTTPUtils {
     readonly #_helpers = {
         inputValidators: {
-            sanatizeOptions: (options?: InputSanitizationOptions): InputSanitizationConfigs => {
+            sanitizeOptions: (options?: InputSanitizationOptions): InputSanitizationConfigs => {
                 const configs: InputSanitizationConfigs = {
                     trim: true,
                     allowHTML: false,
@@ -63,10 +63,10 @@ class HTTPUtils {
 
                 return configs;
             },
-            sanatizeString: (input: string, options?: InputSanitizationOptions): InputSanitizationConfigs => {
+            sanitizeString: (input: string, options?: InputSanitizationOptions): InputSanitizationConfigs => {
                 try {
                     if (!atomix.valueIs.string(input)) { throw new TypeError(`Expected a string input but received ${typeof input}`) }
-                    return this.#_helpers.inputValidators.sanatizeOptions(options);
+                    return this.#_helpers.inputValidators.sanitizeOptions(options);
                 } catch (error) {
                     if (error instanceof Error) {
                         error.message = `Input validation error: ${error.message}`;
@@ -75,7 +75,7 @@ class HTTPUtils {
                     throw error;
                 }
             },
-            sanatize: <T extends Record<string, string>>(input: T, options?: FieldRuleMap<T>): { [K in keyof T]: SanitizedResult<string> | undefined } => {
+            sanitize: <T extends Record<string, string>>(input: T, options?: FieldRuleMap<T>): { [K in keyof T]: SanitizedResult<string> | undefined } => {
                 try {
                     options = options ?? {};
                     if (!atomix.valueIs.record(input)) { throw new TypeError(`Expected a record input but received ${typeof input}`) }
@@ -83,7 +83,7 @@ class HTTPUtils {
                     const hasOwnProperty = atomix.dataTypes.record.hasOwnProperty.bind(atomix.dataTypes.record);
 
                     for (const key in input) {
-                        (result as any)[key] = this.#_helpers.inputValidators.sanatizeOptions(hasOwnProperty(options, key) ? options[key] : undefined);
+                        (result as any)[key] = this.#_helpers.inputValidators.sanitizeOptions(hasOwnProperty(options, key) ? options[key] : undefined);
                     }
 
                     return result;
@@ -129,11 +129,11 @@ class HTTPUtils {
          *
          * @since v1.0.7
          */
-        sanatizeString: (input: string, opts?: InputSanitizationOptions): SanitizedResult<string> => {
+        sanitizeString: (input: string, opts?: InputSanitizationOptions): SanitizedResult<string> => {
             try {
                 let output = input;
                 const violations: SanitizationViolation[] = [];
-                const options = this.#_helpers.inputValidators.sanatizeString(input, opts);
+                const options = this.#_helpers.inputValidators.sanitizeString(input, opts);
 
                 const track = (rule: string, oldValue: string, newValue: string, message: string) => {
                     if (oldValue !== newValue) {
@@ -290,13 +290,13 @@ class HTTPUtils {
      *
      * @example
      * // String usage
-     * const result = sanatize("<b>Hello 👋</b>", { allowHTML: false, allowUnicode: false });
+     * const result = sanitize("<b>Hello 👋</b>", { allowHTML: false, allowUnicode: false });
      * console.log(result.output); // "Hello"
      * console.log(result.violations); // [{ rule: "html", ... }, { rule: "unicode", ... }]
      *
      * @example
      * // Object usage
-     * const result = sanatize({ username: "<admin>", bio: "Hi!" }, {
+     * const result = sanitize({ username: "<admin>", bio: "Hi!" }, {
      *   username: { allow: /^[a-z0-9_]+$/i },
      *   bio: { maxLength: 10 }
      * });
@@ -306,19 +306,19 @@ class HTTPUtils {
      *
      * @since v1.0.7
      */
-    sanatize<T extends Record<string, string>>(
+    sanitize<T extends Record<string, string>>(
         input: T,
         configs?: FieldRuleMap<T>
     ): SanitizedResult<T>;
-    sanatize<T extends string>(input: T, options?: InputSanitizationOptions): SanitizedResult<T>;
-    sanatize<T extends string | Record<string, string>>(
+    sanitize<T extends string>(input: T, options?: InputSanitizationOptions): SanitizedResult<T>;
+    sanitize<T extends string | Record<string, string>>(
         input: T,
         options?: T extends string ? InputSanitizationOptions : FieldRuleMap<T>
     ): SanitizedResult<T> {
         if (atomix.valueIs.string(input)) {
-            return this.#_helpers.sanatizeString(input, options) as SanitizedResult<T>;
+            return this.#_helpers.sanitizeString(input, options) as SanitizedResult<T>;
         } else if (atomix.valueIs.record(input)) {
-            const configs = this.#_helpers.inputValidators.sanatize(input, options as FieldRuleMap<T>);
+            const configs = this.#_helpers.inputValidators.sanitize(input, options as FieldRuleMap<T>);
             const result: SanitizedResult<Record<string, string>> = {
                 ok: true,
                 output: {},
@@ -327,7 +327,7 @@ class HTTPUtils {
 
             for (const key in input) {
                 const value = input[key];
-                const sanatizationRes = this.#_helpers.sanatizeString(value, configs[key] as InputSanitizationOptions | undefined);
+                const sanatizationRes = this.#_helpers.sanitizeString(value, configs[key] as InputSanitizationOptions | undefined);
                 result.output[key] = sanatizationRes.output;
                 result.violations[key] = sanatizationRes.violations;
                 result.ok = result.ok && sanatizationRes.ok;

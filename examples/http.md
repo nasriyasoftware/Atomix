@@ -21,7 +21,7 @@ const http = atomix.http;
 | [bodyCodec](#bodycodec)               | Encode and decode HTTP body content (text, JSON, form, binary, etc.)     |
 | [btoa(text)](#btoa)                   | Encode UTF-8 text to Base64                                              |
 | [atob(base64)](#atob)                 | Decode Base64 to UTF-8 text                                              |
-| [sanatize(input, options)](#sanatize) | Clean and validate input strings or objects against customizable rules   |
+| [sanitize(input, options)](#sanitize) | Clean and validate input strings or objects against customizable rules   |
 
 ---
 ## API Details
@@ -46,20 +46,20 @@ const text = http.atob('SGVsbG8sIFdvcmxkIQ==');
 console.log(text); // "Hello, World!"
 ```
 
-### `sanatize`
-**Signature**: `sanatize(input: string | Record<string, string>, options?: SanatizeOptions): SanatizeResult`
+### `sanitize`
+**Signature**: `sanitize(input: string | Record<string, string>, options?: SanitizeOptions): SanitizeResult`
 
 Sanitizes user input, either a single string or a record of string fields—based on configurable rules.
 
 ```ts
-const result = http.sanatize('Hello, World!', { maxLength: 10 });
+const result = http.sanitize('Hello, World!', { maxLength: 10 });
 console.log(result.ok); // false
 console.log(result.value); // "Hello, Worl..."
 
-const result = http.sanatize({ name: 'John Doe', email: 'user@example.com' });
+const result = http.sanitize({ name: 'John Doe', email: 'user@example.com' });
 console.log(result.ok); // true
 
-const result = sanatize({ username: "<admin>", bio: "Hi!" }, {
+const result = sanitize({ username: "<admin>", bio: "Hi!" }, {
   username: { allow: /^[a-z0-9_]+$/i },
   bio: { maxLength: 10 }
 });

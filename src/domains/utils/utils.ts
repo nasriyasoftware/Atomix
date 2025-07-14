@@ -85,17 +85,60 @@ class CommonUtils {
     debounce<T extends (...args: any[]) => any>(fn: T, delay: number): (...args: Parameters<T>) => Promise<ReturnType<T>> {
         let timeout: NodeJS.Timeout | null = null;
         let resolveFn: ((value: any) => void) | null = null;
+        let rejectFn: ((reason?: any) => void) | null = null;
 
         return (...args: Parameters<T>) => {
             if (timeout) clearTimeout(timeout);
 
-            return new Promise<ReturnType<T>>((resolve) => {
+            return new Promise<ReturnType<T>>((resolve, reject) => {
                 resolveFn = resolve;
+                rejectFn = reject;
                 timeout = setTimeout(async () => {
-                    const result = await fn(...args);
-                    resolveFn?.(result);
+                    try {
+                        const result = await fn(...args);
+                        resolveFn?.(result);
+                    } catch (error) {
+                        rejectFn?.(error);
+                    }
                 }, delay);
             });
+        };
+    }
+
+    /**
+     * Returns a debounced version of the given function that does not return a promise.
+     *
+     * When the given function is called, it will wait the specified delay before
+     * actually calling the function. If the function is called multiple times
+     * within that delay, it will only call the function once after the delay
+     * has passed.
+     *
+     * @param fn - The function to debounce.
+     * @param delay - The number of milliseconds to delay calling the function.
+     * @returns A debounced version of the given function.
+     * @since v1.0.8
+     */
+    debounceSync<T extends (...args: any[]) => any>(
+        fn: T,
+        delay: number,
+        options?: {
+            onDone?: (result: ReturnType<T>) => void;
+            onError?: (err: unknown) => void;
+        }
+    ): (...args: Parameters<T>) => void {
+        let timeout: ReturnType<typeof setTimeout> | null = null;
+
+        return (...args: Parameters<T>) => {
+            if (timeout) clearTimeout(timeout);
+
+            timeout = setTimeout(() => {
+                try {
+                    const result = fn(...args);
+                    options?.onDone?.(result);
+                } catch (error) {
+                    options?.onError?.(error);
+                }
+            }, delay);
         };
     }
 

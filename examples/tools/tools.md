@@ -17,9 +17,10 @@ import * as tools from '@nasriya/atomix/tools';
 ```
 ---
 ## Available Tools
-| Tool                     | Description                                          | API Reference                 |
-| ------------------------ | ---------------------------------------------------- | ----------------------------- |
-| [TaskQueue](#️-taskqueue) | A prioritized task queue manager for async workflows | [API Details](./TaskQueue.md) |
+| Tool                           | Description                                          | API Reference                    |
+| ------------------------------ | ---------------------------------------------------- | -------------------------------- |
+| [TaskQueue](#️-taskqueue)       | A prioritized task queue manager for async workflows | [API Details](./TaskQueue.md)    |
+| [EventEmitter](#️-eventemitter) | A simple event emitter for event-driven applications | [API Details](./EventEmitter.md) |
 
 ---
 ## Core APIs
@@ -43,3 +44,30 @@ await taskQueue.untilComplete();
 ```
 
 **[:: See full API reference & examples → ::](./TaskQueue.md)**
+
+### 🔔 EventEmitter
+A simple yet structured event system with support for lifecycle hooks and one-time handlers.
+
+```ts
+const emitter = new atomix.tools.EventEmitter();
+
+// Add a regular handler
+emitter.on('message', (text) => {
+    console.log('Message received:', text);
+});
+
+// Add a one-time handler
+emitter.on('message', () => {
+    console.log('This runs only once');
+}, { once: true });
+
+// Add a beforeAll handler
+emitter.on('message', () => {
+    console.log('Preparing to emit "message" event');
+}, { type: 'beforeAll' });
+
+await emitter.emit('message', 'Hello');
+await emitter.emit('message', 'World');
+```
+
+**[:: See full API reference & examples → ::](./EventEmitter.md)**
