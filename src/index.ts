@@ -1,5 +1,9 @@
+import atomix from './atomix';
+export default atomix;
+
 // Main index: `@nasriya/atomix`
 export { mimeData } from './domains/http/mimes/mime-data';
+export { currencies } from './data/currencies';
 export type {
     Mime, FileExtension,
     RRType,

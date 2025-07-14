@@ -1,4 +1,4 @@
-[
+export const currencies = [
     "AED",
     "AFN",
     "ALL",
@@ -159,4 +159,6 @@
     "ZAR",
     "ZMW",
     "ZWD"
-]
+] as const;
+
+export default currencies;

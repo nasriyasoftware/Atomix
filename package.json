@@ -1,6 +1,6 @@
 {
   "name": "@nasriya/atomix",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Composable helper functions for building reliable systems",
   "keywords": [
     "networking",
@@ -38,9 +38,14 @@
   ],
   "exports": {
     ".": {
-      "import": "./dist/esm/atomix.js",
-      "require": "./dist/cjs/atomix.js",
-      "types": "./dist/@types/atomix.d.ts"
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js",
+      "types": "./dist/@types/index.d.ts"
+    },
+    "./tools": {
+      "import": "./dist/esm/tools/index.js",
+      "require": "./dist/cjs/tools/index.js",
+      "types": "./dist/@types/tools/index.d.ts"
     }
   },
   "scripts": {
