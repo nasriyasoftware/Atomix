@@ -1,6 +1,6 @@
 {
   "name": "@nasriya/atomix",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "Composable helper functions for building reliable systems",
   "keywords": [
     "networking",
@@ -30,12 +30,14 @@
     "nasriya"
   ],
   "type": "module",
-  "main": "./dist/cjs/atomix.js",
-  "module": "./dist/esm/atomix.js",
-  "types": "./dist/@types/atomix.d.ts",
-  "files": [
-    "dist/**/*"
-  ],
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/@types/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "tools/*": ["dist/@types/tools/*"]
+    }
+  },  
   "exports": {
     ".": {
       "import": "./dist/esm/index.js",
@@ -48,6 +50,9 @@
       "types": "./dist/@types/tools/index.d.ts"
     }
   },
+  "files": [
+    "dist/**/*"
+  ],
   "scripts": {
     "build": "npm run build:esm && npm run build:cjs && postbuild",
     "build:esm": "tsc --project tsconfig.esm.json",

@@ -224,7 +224,7 @@ export class EventEmitter {
      * @returns The EventEmitter instance.
      * @since v1.0.8
      */
-    on(eventName: string, handler: (...args: any) => any | Promise<any>, options?: AddHandlerOptions) {
+    on(eventName: string, handler: EventHandler, options?: AddHandlerOptions) {
         const configs: Required<AddHandlerOptions> = {
             once: false,
             type: 'normal',
