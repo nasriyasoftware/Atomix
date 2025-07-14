@@ -1,6 +1,8 @@
 import uuidX from "@nasriya/uuidx";
-import atomix from "../../atomix";
 import { BaseQueueTask, InternalQueueTask, TaskPriorityLevel } from "./docs";
+import recordsUtils from "../../domains/data-types/record/records-utils";
+import objectUtils from "../../domains/data-types/object/objects-utils";
+import valueIs from "../../valueIs";
 
 /**
  * The general-purpose prioritized task queue utility.
@@ -67,7 +69,7 @@ export class TaskQueue {
                 const task = this.#_getNextTask()!;
 
                 try {
-                    const result = await task.action(atomix.dataTypes.object.deepFreeze(task.metadata!));
+                    const result = await task.action(objectUtils.deepFreeze(task.metadata!));
                     this.#_handlers.onResolve(task, result);
                 } catch (err) {
                     this.#_handlers.onReject(task, err);
@@ -180,12 +182,12 @@ export class TaskQueue {
             }
         },
         validateTask: (task: BaseQueueTask) => {
-            if (!atomix.valueIs.record(task)) { throw new TypeError(`Task is expected to be a record, but got ${typeof task}`) }
-            const hasOwnProperty = atomix.dataTypes.record.hasOwnProperty.bind(atomix.dataTypes.record);
+            if (!valueIs.record(task)) { throw new TypeError(`Task is expected to be a record, but got ${typeof task}`) }
+            const hasOwnProperty = recordsUtils.hasOwnProperty.bind(recordsUtils);
             let id: string;
 
             if (hasOwnProperty(task, 'id')) {
-                if (!atomix.valueIs.string(task.id)) { throw new TypeError(`Task.id is expected to be a string, but got ${typeof task.id}`) }
+                if (!valueIs.string(task.id)) { throw new TypeError(`Task.id is expected to be a string, but got ${typeof task.id}`) }
                 if (task.id.length === 0) { throw new RangeError('Task.id is expected to be a non-empty string') }
                 if (this.#_helpers.id.list.includes(task.id)) { throw new RangeError(`Task.id "${task.id}" is already in use`) }
                 id = task.id;
@@ -194,14 +196,14 @@ export class TaskQueue {
             }
 
             if (hasOwnProperty(task, 'type')) {
-                if (!atomix.valueIs.string(task.type)) { throw new TypeError(`Task.type is expected to be a string, but got ${typeof task.type}`) }
+                if (!valueIs.string(task.type)) { throw new TypeError(`Task.type is expected to be a string, but got ${typeof task.type}`) }
                 if (task.type.length === 0) { throw new RangeError('Task.type is expected to be a non-empty string') }
             } else {
                 throw new SyntaxError('Task.type is required and is missing');
             }
 
             if (hasOwnProperty(task, 'priority')) {
-                if (!atomix.valueIs.number(task.priority)) { throw new TypeError(`Task.priority is expected to be a number, but got ${typeof task.priority}`) }
+                if (!valueIs.number(task.priority)) { throw new TypeError(`Task.priority is expected to be a number, but got ${typeof task.priority}`) }
                 if (task.priority < 0 || task.priority > 3) { throw new RangeError(`Task.priority is expected to be between 0 and 3, but got ${task.priority}`) }
             } else {
                 task.priority = 3;
@@ -226,7 +228,7 @@ export class TaskQueue {
             }
 
             if (hasOwnProperty(task, 'metadata')) {
-                if (!atomix.valueIs.record(task.metadata)) { throw new TypeError(`Task.metadata is expected to be a record, but got ${typeof task.metadata}`) }
+                if (!valueIs.record(task.metadata)) { throw new TypeError(`Task.metadata is expected to be a record, but got ${typeof task.metadata}`) }
             } else {
                 task.metadata = {};
             }
@@ -244,8 +246,8 @@ export class TaskQueue {
      * @since v1.0.2
      */
     get stats() {
-        const cloned = atomix.dataTypes.object.smartClone(this.#_stats);
-        return atomix.dataTypes.record.deepFreeze(cloned);
+        const cloned = objectUtils.smartClone(this.#_stats);
+        return recordsUtils.deepFreeze(cloned);
     }
 
     /**

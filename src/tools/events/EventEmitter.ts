@@ -1,4 +1,6 @@
-import atomix from '../../atomix';
+import valueIs from '../../valueIs';
+import commonUtils from '../../domains/utils/utils';
+import recordsUtils from '../../domains/data-types/record/records-utils';
 import { EventData, EventHandler, AddHandlerOptions } from './docs';
 
 /**
@@ -75,7 +77,7 @@ export class EventEmitter {
             return events;
         },
         onMaxHandlers: {
-            builtInHandler: atomix.utils.debounceSync(() => {
+            builtInHandler: commonUtils.debounceSync(() => {
                 if (this.#_stats.handlers.number > this.#_stats.handlers.max) {
                     console.warn(`[WARN] The maximum number of handlers has been reached (${this.#_stats.handlers.max}). Current number of handlers: ${this.#_stats.handlers.number}.`);
                 }
@@ -192,7 +194,7 @@ export class EventEmitter {
      * @since v1.0.8
      */
     async emit(eventName: string, ...args: any): Promise<void> {
-        if (!atomix.valueIs.string(eventName)) { throw new TypeError(`The provided event name (${eventName}) is not a string.`) }
+        if (!valueIs.string(eventName)) { throw new TypeError(`The provided event name (${eventName}) is not a string.`) }
         if (eventName.length === 0) { throw new RangeError(`The provided event name (${eventName}) is an empty string.`) }
 
         const globalEvents = this.#_helpers.getEvents('*');
@@ -228,19 +230,19 @@ export class EventEmitter {
             type: 'normal',
         }
 
-        if (!atomix.valueIs.string(eventName)) { throw new TypeError(`The provided event name (${eventName}) is not a string.`) }
+        if (!valueIs.string(eventName)) { throw new TypeError(`The provided event name (${eventName}) is not a string.`) }
         if (eventName.length === 0) { throw new RangeError(`The provided event name (${eventName}) is an empty string.`) }
         if (typeof handler !== 'function') { throw new TypeError(`The provided handler (${handler}) is not a function.`) }
         if (options !== undefined) {
-            if (!atomix.valueIs.record(options)) { throw new TypeError(`The provided options (${options}) is not a record.`) }
+            if (!valueIs.record(options)) { throw new TypeError(`The provided options (${options}) is not a record.`) }
 
-            if (atomix.dataTypes.record.hasOwnProperty(options, 'once')) {
+            if (recordsUtils.hasOwnProperty(options, 'once')) {
                 if (typeof options.once !== 'boolean') { throw new TypeError(`The "once" property of the provided options (${options}) is not a boolean.`) }
                 configs.once = options.once;
             }
 
-            if (atomix.dataTypes.record.hasOwnProperty(options, 'type')) {
-                if (!atomix.valueIs.string(options.type)) { throw new TypeError(`The "type" property of the provided options (${options}) is not a string.`) }
+            if (recordsUtils.hasOwnProperty(options, 'type')) {
+                if (!valueIs.string(options.type)) { throw new TypeError(`The "type" property of the provided options (${options}) is not a string.`) }
                 if (!['beforeAll', 'afterAll', 'normal'].includes(options.type)) { throw new RangeError(`The "type" property of the provided options (${options}) is not a valid event type.`) }
                 configs.type = options.type;
             }
@@ -284,7 +286,7 @@ export class EventEmitter {
         }
 
         if (isFunction) {
-            this.#_helpers.onMaxHandlers.customHandler = atomix.utils.debounceSync((eventName: string) => {
+            this.#_helpers.onMaxHandlers.customHandler = commonUtils.debounceSync((eventName: string) => {
                 if (this.#_stats.handlers.number <= this.#_stats.handlers.max) { return }
                 handler(eventName);
             }, 100, {
@@ -316,14 +318,14 @@ export class EventEmitter {
      * @since v1.0.8
      */
     set maxHandlers(value: number) {
-        if (!atomix.valueIs.number(value)) { throw new TypeError('maxHandlers must be a number') }
+        if (!valueIs.number(value)) { throw new TypeError('maxHandlers must be a number') }
         if (value === Infinity) {
             this.#_stats.handlers.max = value;
             return;
         }
 
         if (value <= 0) { throw new RangeError('maxHandlers must be greater than 0') }
-        if (!atomix.valueIs.integer(value)) { throw new TypeError('maxHandlers must be an integer') }
+        if (!valueIs.integer(value)) { throw new TypeError('maxHandlers must be an integer') }
         this.#_stats.handlers.max = value;
     }
 
@@ -381,7 +383,7 @@ export class EventEmitter {
          * @since v1.0.8
          */
         handler: (eventName: string, handler: EventHandler): boolean => {
-            if (!atomix.valueIs.string(eventName)) { throw new TypeError(`The provided event name (${eventName}) is not a string.`) }
+            if (!valueIs.string(eventName)) { throw new TypeError(`The provided event name (${eventName}) is not a string.`) }
             if (eventName.length === 0) { throw new RangeError(`The provided event name (${eventName}) is an empty string.`) }
             if (typeof handler !== 'function') { throw new TypeError(`The provided handler (${handler}) is not a function.`) }
 
@@ -431,7 +433,7 @@ export class EventEmitter {
          */
         allHandlers: (eventName?: string): boolean => {
             if (eventName !== undefined) {
-                if (!atomix.valueIs.string(eventName)) { throw new TypeError(`The provided event name (${eventName}) is not a string.`) }
+                if (!valueIs.string(eventName)) { throw new TypeError(`The provided event name (${eventName}) is not a string.`) }
                 if (eventName.length === 0) { throw new RangeError(`The provided event name (${eventName}) is an empty string.`) }
             }
 

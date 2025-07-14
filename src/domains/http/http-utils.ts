@@ -1,4 +1,5 @@
-import atomix from "../../atomix";
+import valueIs from "../../valueIs";
+import recordsUtils from "../data-types/record/records-utils";
 import mimes from "./mimes/mimes";
 import httpGuard from "./http-guard";
 import bodyCodec from "./body-codec";
@@ -20,9 +21,9 @@ class HTTPUtils {
                 };
 
                 if (options === undefined) { return configs; }
-                if (!atomix.valueIs.record(options)) { throw new TypeError(`Expected a record input but received ${typeof options}`) }
+                if (!valueIs.record(options)) { throw new TypeError(`Expected a record input but received ${typeof options}`) }
 
-                const hasOwnProperty = atomix.dataTypes.record.hasOwnProperty.bind(atomix.dataTypes.record);
+                const hasOwnProperty = recordsUtils.hasOwnProperty.bind(recordsUtils);
 
                 if (hasOwnProperty(options, 'trim')) {
                     if (typeof options.trim !== 'boolean') { throw new TypeError(`Expected 'trim' to be a boolean but received ${typeof options.trim}`); }
@@ -40,8 +41,8 @@ class HTTPUtils {
                 }
 
                 if (hasOwnProperty(options, 'maxLength')) {
-                    if (!atomix.valueIs.number(options.maxLength)) { throw new TypeError(`Expected 'maxLength' to be a number but received ${typeof options.maxLength}`); }
-                    if (!atomix.valueIs.integer(options.maxLength) && options.maxLength !== Infinity) { throw new TypeError(`Expected 'maxLength' to be an integer but received ${options.maxLength}`); }
+                    if (!valueIs.number(options.maxLength)) { throw new TypeError(`Expected 'maxLength' to be a number but received ${typeof options.maxLength}`); }
+                    if (!valueIs.integer(options.maxLength) && options.maxLength !== Infinity) { throw new TypeError(`Expected 'maxLength' to be an integer but received ${options.maxLength}`); }
                     if (options.maxLength < 0) { throw new RangeError(`Expected 'maxLength' to be a non-negative integer but received ${options.maxLength}`); }
                     configs.maxLength = options.maxLength;
                 }
@@ -65,7 +66,7 @@ class HTTPUtils {
             },
             sanitizeString: (input: string, options?: InputSanitizationOptions): InputSanitizationConfigs => {
                 try {
-                    if (!atomix.valueIs.string(input)) { throw new TypeError(`Expected a string input but received ${typeof input}`) }
+                    if (!valueIs.string(input)) { throw new TypeError(`Expected a string input but received ${typeof input}`) }
                     return this.#_helpers.inputValidators.sanitizeOptions(options);
                 } catch (error) {
                     if (error instanceof Error) {
@@ -78,9 +79,9 @@ class HTTPUtils {
             sanitize: <T extends Record<string, string>>(input: T, options?: FieldRuleMap<T>): { [K in keyof T]: SanitizedResult<string> | undefined } => {
                 try {
                     options = options ?? {};
-                    if (!atomix.valueIs.record(input)) { throw new TypeError(`Expected a record input but received ${typeof input}`) }
+                    if (!valueIs.record(input)) { throw new TypeError(`Expected a record input but received ${typeof input}`) }
                     const result = {} as { [K in keyof T]: SanitizedResult<string> | undefined };
-                    const hasOwnProperty = atomix.dataTypes.record.hasOwnProperty.bind(atomix.dataTypes.record);
+                    const hasOwnProperty = recordsUtils.hasOwnProperty.bind(recordsUtils);
 
                     for (const key in input) {
                         (result as any)[key] = this.#_helpers.inputValidators.sanitizeOptions(hasOwnProperty(options, key) ? options[key] : undefined);
@@ -315,9 +316,9 @@ class HTTPUtils {
         input: T,
         options?: T extends string ? InputSanitizationOptions : FieldRuleMap<T>
     ): SanitizedResult<T> {
-        if (atomix.valueIs.string(input)) {
+        if (valueIs.string(input)) {
             return this.#_helpers.sanitizeString(input, options) as SanitizedResult<T>;
-        } else if (atomix.valueIs.record(input)) {
+        } else if (valueIs.record(input)) {
             const configs = this.#_helpers.inputValidators.sanitize(input, options as FieldRuleMap<T>);
             const result: SanitizedResult<Record<string, string>> = {
                 ok: true,
