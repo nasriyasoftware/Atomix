@@ -1,6 +1,6 @@
 {
   "name": "@nasriya/atomix",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "description": "Composable helper functions for building reliable systems",
   "keywords": [
     "networking",
@@ -35,7 +35,7 @@
   "types": "./dist/@types/index.d.ts",
   "typesVersions": {
     "*": {
-      "tools/*": ["dist/@types/tools/*"]
+      "tools": ["dist/@types/tools/index.d.ts"]
     }
   },  
   "exports": {
