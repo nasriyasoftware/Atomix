@@ -116,7 +116,9 @@ export class EventEmitter {
 
             // Handle normal events
             for (let i = 0; i < events.handlers.normal.index; i++) {
+                console.log(`Running handler [${i}] for event [${events.name}]`);
                 const handler = (events.handlers.normal.handlers.get(i) || events.handlers.normal.onceHandlers.get(i))!;
+                if (!handler) { continue }
                 await this.#_runner.runHandler(handler, events.name, ...args);
             }
 
