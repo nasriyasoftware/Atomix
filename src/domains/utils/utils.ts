@@ -70,16 +70,21 @@ class CommonUtils {
     }
 
     /**
-     * Returns a debounced version of the given function.
+     * Debounces a function, delaying its invocation until the specified delay
+     * period has passed since the last call.
      *
-     * When the given function is called, it will wait the specified delay before
-     * actually calling the function. If the function is called multiple times
-     * within that delay, it will only call the function once after the delay
-     * has passed.
+     * The debounced function returns a promise that resolves with the result
+     * of the original function. If the debounced function is called again
+     * before the delay period has passed, the previous promise is rejected
+     * with an error and a new promise is returned.
+     *
+     * The debounced function also has a `cancel` method that can be called to
+     * cancel the current pending invocation. If called, the promise is rejected
+     * with an error and the timer is cleared.
      *
      * @param fn - The function to debounce.
-     * @param delay - The number of milliseconds to delay calling the function.
-     * @returns A debounced version of the given function that returns a promise.
+     * @param delay - The number of milliseconds to delay the invocation of the function.
+     * @returns A debounced version of the given function.
      * @since v1.0.0
      */
     debounce<T extends (...args: any[]) => any>(fn: T, delay: number): (...args: Parameters<T>) => Promise<ReturnType<T>> {
@@ -87,7 +92,7 @@ class CommonUtils {
         let resolveFn: ((value: any) => void) | null = null;
         let rejectFn: ((reason?: any) => void) | null = null;
 
-        return (...args: Parameters<T>) => {
+        const debounced = (...args: Parameters<T>) => {
             if (timeout) clearTimeout(timeout);
 
             return new Promise<ReturnType<T>>((resolve, reject) => {
@@ -103,6 +108,19 @@ class CommonUtils {
                 }, delay);
             });
         };
+
+        debounced.cancel = () => {
+            if (timeout) {
+                clearTimeout(timeout);
+                timeout = null;
+                // Reject the pending Promise if any
+                rejectFn?.(new Error('Debounced function cancelled'));
+                resolveFn = null;
+                rejectFn = null;
+            }
+        };
+
+        return debounced;
     }
 
     /**
@@ -128,7 +146,7 @@ class CommonUtils {
     ): (...args: Parameters<T>) => void {
         let timeout: ReturnType<typeof setTimeout> | null = null;
 
-        return (...args: Parameters<T>) => {
+        const debounced = (...args: Parameters<T>) => {
             if (timeout) clearTimeout(timeout);
 
             timeout = setTimeout(() => {
@@ -139,7 +157,16 @@ class CommonUtils {
                     options?.onError?.(error);
                 }
             }, delay);
-        };
+        }
+
+        debounced.cancel = () => {
+            if (timeout) {
+                clearTimeout(timeout);
+                timeout = null;
+            }
+        }
+
+        return debounced;
     }
 
     /**

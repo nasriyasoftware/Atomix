@@ -299,6 +299,25 @@ export class EventEmitter {
     }
 
     /**
+     * Cleans up any internal resources used by this instance.
+     * 
+     * Specifically, cancels any pending debounced handlers (such as
+     * warnings about maximum handlers) to prevent timers from
+     * keeping the process alive or causing side effects after disposal.
+     * 
+     * This method should be called when the instance is no longer needed,
+     * such as during test teardown or object cleanup.
+     * 
+     * @since v1.0.15
+     */
+    dispose() {
+        const { builtInHandler, customHandler } = this.#_helpers.onMaxHandlers;
+        (builtInHandler as any)?.cancel();
+        if (typeof customHandler !== 'function') { return }
+        (customHandler as any)?.cancel();
+    }
+
+    /**
      * Retrieves the maximum number of event handlers allowed for this EventEmitter instance.
      * 
      * The value is a positive integer or Infinity. If set to Infinity, there is no limit to the number of handlers.
