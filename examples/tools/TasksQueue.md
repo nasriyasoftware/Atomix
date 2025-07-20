@@ -96,8 +96,8 @@ interface BaseQueueTask<
     type: string;
     priority?: 0 | 1 | 2 | 3;
     metadata?: K;
-    action: (metadata: DeepReadonly<K>) => T | Promise<T>;
-    onResolve?: (result: T) => any | Promise<any>;
+    action: (metadata?: DeepReadonly<K>) => T | Promise<T>;
+    onResolve?: (result?: T, metadata?: DeepReadonly<K>) => any | Promise<any>;
     onReject?: (error: Error) => any | Promise<any>;
     onDone?: () => any | Promise<any>;
 }
