@@ -24,6 +24,9 @@ const records = atomix.dataTypes.record;
 | [deepFreeze](#-deepfreeze)         | Returns a deeply frozen copy of a record                       |
 | [stringify](#-stringify)           | Safely converts a record to a JSON string                      |
 | [parse](#-parse)                   | Parses a JSON string into a typed `Record<string, any>` object |
+| [keys](#-keys)                     | Returns an array of all keys in a record                       |
+| [values](#-values)                 | Returns an array of all values in a record                     |
+| [entries](#-entries)               | Returns an array of all entries in a record                    |
 
 ---
 ## API Details
@@ -98,4 +101,37 @@ Parses a JSON string back into a Record object.
 const jsonString = '{"foo":"bar","age":16}';
 const record = records.parse(jsonString);
 console.log(record); // { foo: "bar", age: 16 }
+```
+
+### 🔑 `keys`
+Signature: `keys<T extends Record<string, any>>(obj: T): (keyof T)[]`
+
+Returns an array of all keys in the Record object.
+
+```ts
+const record = { foo: 'bar', age: 16 };
+const keys = records.keys(record);
+console.log(keys); // ["foo", "age"]
+```
+
+### 📦 `values`
+Signature: `values<T extends Record<string, any>>(obj: T): T[keyof T][]`
+
+Returns an array of all values in the Record object.
+
+```ts
+const record = { foo: 'bar', age: 16 };
+const values = records.values(record);
+console.log(values); // ["bar", 16]
+```
+
+### 📦 `entries`
+Signature: `entries<TObj extends Record<string, any>, TKey extends keyof TObj>(obj: TObj): [TKey, TObj[TKey]][]`
+
+Returns an array of [key, value] pairs from the Record object.
+
+```ts
+const record = { foo: 'bar', age: 16 };
+const entries = records.entries(record);
+console.log(entries); // [["foo", "bar"], ["age", 16]]
 ```

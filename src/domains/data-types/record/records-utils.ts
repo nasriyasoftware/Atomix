@@ -126,6 +126,67 @@ class RecordsUtils {
     parse<T>(json: Stringified<T>): JSONObject<T> {
         return objectUtils.parse(json);
     }
+
+    /**
+     * Returns an array of all keys in the Record object.
+     * 
+     * This method returns an array of strings, where each element is a key in the
+     * Record object. The type of the returned array is inferred from the type
+     * parameter of the Record object.
+     * 
+     * @template T - The type of the Record object.
+     * @param obj - The Record object to get the keys from.
+     * @returns An array of all keys in the Record object.
+     * @since v1.0.16
+     * @example
+     * const record = { foo: 'bar', age: 16, x: { valid: true } };
+     * const keys = records.keys(record);
+     * // keys is an array of type (keyof typeof record)[]
+     */
+    keys<T extends Record<string, any>>(obj: T) {
+        return Object.keys(obj) as (keyof T)[];
+    }
+
+    /**
+     * Returns an array of all values in the Record object.
+     * 
+     * This method returns an array of values, where each element is a value in the
+     * Record object. The type of the returned array is inferred from the type
+     * parameter of the Record object.
+     * 
+     * @template T - The type of the Record object.
+     * @param obj - The Record object to get the values from.
+     * @returns An array of all values in the Record object.
+     * @since v1.0.16
+     * @example
+     * const record = { foo: 'bar', age: 16, x: { valid: true } };
+     * const values = records.values(record);
+     * // values is an array of type (T[keyof T])[]
+     */
+    values<T extends Record<string, any>>(obj: T): T[keyof T][] {
+        return Object.values(obj);
+    }
+
+    /**
+     * Returns an array of [key, value] pairs from the Record object.
+     * 
+     * This method returns an array of [key, value] pairs, where each element is a
+     * key-value pair in the Record object. The type of the returned array is
+     * inferred from the type parameter of the Record object.
+     * 
+     * @template TObj - The type of the Record object.
+     * @template TKey - The type of the keys in the Record object.
+     * @param obj - The Record object to get the entries from.
+     * @returns An array of [key, value] pairs from the Record object.
+     * @since v1.0.16
+     * @example
+     * const record = { foo: 'bar', age: 16, x: { valid: true } };
+     * const entries = records.entries(record);
+     * // entries is an array of type [keyof typeof record, typeof record[keyof typeof record]][]
+     */
+    entries<TObj extends Record<string, any>, TKey extends keyof TObj>(obj: TObj): [TKey, TObj[TKey]][] {
+        return Object.entries(obj) as [TKey, TObj[TKey]][];
+    }
 }
 
 const recordsUtils = new RecordsUtils;
