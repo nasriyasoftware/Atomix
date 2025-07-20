@@ -17,7 +17,7 @@ export type {
     StringPaddingOptions,
     Serializable,
     RandomOptions,
-    BaseQueueTask,
+    BaseQueueTask, TasksQueueOptions, AddTasksBaseOptions,
     EventHandler, AddHandlerOptions,
     InputSanitizationOptions, FieldRuleMap, SanitizedResult, SanitizationViolation,
 } from './docs/docs';

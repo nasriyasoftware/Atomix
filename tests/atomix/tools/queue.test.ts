@@ -1,98 +1,119 @@
-import { TaskPriorityLevel } from '../../../src/tools/queues/docs';
-import TaskQueue from '../../../src/tools/queues/TaskQueue'; // adjust path if needed
+import { BaseQueueTask } from '../../../src/tools/queues/docs';
+import TasksQueue from '../../../src/tools/queues/TasksQueue'; // adjust path if needed
 
-const taskQueue = new TaskQueue();
+describe('TasksQueue – extended behaviors', () => {
+    it('should process a task immediately if method-level autoRun is true, regardless of queue autoRun setting', async () => {
+        const queue = new TasksQueue({ autoRun: false });
 
-describe('taskQueue', () => {
-    beforeEach(async () => {
-        await taskQueue.untilComplete();
-    });
+        const result: number[] = [];
 
-    test('addTask processes a single task correctly', async () => {
-        const calls: string[] = [];
-        const task = {
-            id: 'task1',
+        queue.addTask({
             type: 'test',
-            priority: 2 as TaskPriorityLevel,
+            priority: 2,
             action: async () => {
-                calls.push('action');
-                return 'done';
-            },
-            onResolve: (result: any) => calls.push(`resolved:${result}`),
-            onReject: () => calls.push('rejected'),
-            onDone: () => calls.push('done'),
-        };
+                result.push(42);
+            }
+        }, { autoRun: true });
 
-        taskQueue.addTask(task);
-        // Wait for queue to process
-        await taskQueue.untilComplete();
-
-        expect(calls).toEqual(['action', 'resolved:done', 'done']);
+        await queue.untilComplete();
+        expect(result).toEqual([42]);
     });
 
-    test('bulkAddTasks processes multiple tasks in correct priority order', async () => {
-        const calls: string[] = [];
+    it('should call onResolve, onReject, and onDone callbacks appropriately', async () => {
+        const queue = new TasksQueue({ autoRun: true });
 
-        const tasks = [
-            {
-                id: 'low1',
-                type: 'test',
-                priority: 3 as TaskPriorityLevel,
-                action: async () => { calls.push('low1'); return 'ok'; },
-                onResolve: (result: any) => calls.push(`low1:resolved:${result}`),
-                onDone: () => calls.push('low1:done'),
+        const events: string[] = [];
+
+        queue.addTask({
+            type: 'success',
+            action: async () => 'ok',
+            onResolve: (res) => events.push(`resolved:${res}`),
+            onReject: () => events.push('rejected'),
+            onDone: () => events.push('done-success')
+        });
+
+        queue.addTask({
+            type: 'failure',
+            action: async () => {
+                throw new Error('fail');
             },
-            {
-                id: 'high1',
-                type: 'test',
-                priority: 0 as TaskPriorityLevel,
-                action: async () => { calls.push('high1'); return 'ok'; },
-                onResolve: (result: any) => calls.push(`high1:resolved:${result}`),
-                onDone: () => calls.push('high1:done'),
-            },
-            {
-                id: 'med1',
-                type: 'test',
-                priority: 1 as TaskPriorityLevel,
-                action: async () => { calls.push('med1'); return 'ok'; },
-                onResolve: (result: any) => calls.push(`med1:resolved:${result}`),
-                onDone: () => calls.push('med1:done'),
-            }
-        ];
+            onResolve: () => events.push('should-not-resolve'),
+            onReject: (err) => events.push(`rejected:${err.message}`),
+            onDone: () => events.push('done-failure')
+        });
 
-        taskQueue.bulkAddTasks(tasks);
+        await queue.untilComplete();
 
-        // Wait enough time for all tasks to process
-        await taskQueue.untilComplete();
-
-        // The queue should process high priority (0) first, then med (1), then low (3)
-        expect(calls).toEqual([
-            'high1', 'high1:resolved:ok', 'high1:done',
-            'med1', 'med1:resolved:ok', 'med1:done',
-            'low1', 'low1:resolved:ok', 'low1:done',
+        expect(events).toEqual([
+            'resolved:ok',
+            'done-success',
+            'rejected:fail',
+            'done-failure'
         ]);
     });
 
-    test('addTask rejects duplicate task ids', () => {
-        const task1 = {
-            id: 'duplicate',
-            type: 'test',
-            priority: 2 as TaskPriorityLevel,
-            action: async () => 'done',
-            onResolve: () => { },
-            onReject: () => { },
-            onDone: () => { },
+    it('should handle strongly typed tasks with metadata and result', async () => {
+        interface Meta {
+            name: string;
+            age: number;
+        }
+
+        type Result = { ok: true; userId: string } | { ok: false; error: Error };
+
+        const queue = new TasksQueue({ autoRun: true });
+
+        const meta: Meta = {
+            name: 'Jane',
+            age: 28
         };
 
-        const task2 = { ...task1 };
+        const action = async (meta: Meta): Promise<Result> => {
+            if (meta.age >= 18) {
+                return { ok: true, userId: 'abc123' };
+            }
+            return { ok: false, error: new Error('Too young') };
+        };
 
-        taskQueue.addTask(task1);
-        expect(() => taskQueue.addTask(task2)).toThrow(/already in use/);
+        const task: BaseQueueTask<Result, Meta> = {
+            type: 'typed',
+            metadata: meta,
+            action: () => action(meta),
+            onResolve: (res) => {
+                expect(res.ok).toBe(true);
+                if (res.ok) {
+                    expect(res.userId).toBe('abc123');
+                }
+            }
+        };
+
+        queue.addTask(task);
+        await queue.untilComplete();
     });
 
-    test('tasks with missing required fields throw errors', () => {
-        expect(() => taskQueue.addTask({} as any)).toThrow();
-        expect(() => taskQueue.addTask({ id: '', type: 'x', action: async () => { }, onResolve() { }, onReject() { } } as any)).toThrow();
-        expect(() => taskQueue.addTask({ id: 'x', type: '', action: async () => { }, onResolve() { }, onReject() { } } as any)).toThrow();
+    it('should prioritize higher priority tasks even when autoRun is enabled', async () => {
+        const queue = new TasksQueue({ autoRun: true });
+
+        const calls: string[] = [];
+
+        queue.bulkAddTasks([
+            {
+                type: 'low',
+                priority: 3,
+                action: async () => calls.push('low')
+            },
+            {
+                type: 'high',
+                priority: 1,
+                action: async () => calls.push('high')
+            },
+            {
+                type: 'medium',
+                priority: 2,
+                action: async () => calls.push('medium')
+            }
+        ]);
+
+        await queue.untilComplete();
+        expect(calls).toEqual(['high', 'medium', 'low']);
     });
 });

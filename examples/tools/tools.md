@@ -19,18 +19,18 @@ import * as tools from '@nasriya/atomix/tools';
 ## Available Tools
 | Tool                           | Description                                          | API Reference                    |
 | ------------------------------ | ---------------------------------------------------- | -------------------------------- |
-| [TaskQueue](#️-taskqueue)       | A prioritized task queue manager for async workflows | [API Details](./TaskQueue.md)    |
+| [TasksQueue](#️-tasksqueue)     | A prioritized task queue manager for async workflows | [API Details](./TasksQueue.md)   |
 | [EventEmitter](#️-eventemitter) | A simple event emitter for event-driven applications | [API Details](./EventEmitter.md) |
 
 ---
 ## Core APIs
 These utilities are available as classes under the `tools` namespace.
 
-### 🗂️ TaskQueue
+### 🗂️ TasksQueue
 A prioritized task queue manager that helps you run async tasks with priorities and control.
 
 ```ts
-const taskQueue = new atomix.tools.TaskQueue();
+const taskQueue = new atomix.tools.TasksQueue();
 
 taskQueue.addTask({
     id: 'task1',
@@ -43,7 +43,7 @@ taskQueue.addTask({
 await taskQueue.untilComplete();
 ```
 
-**[:: See full API reference & examples → ::](./TaskQueue.md)**
+**[:: See full API reference & examples → ::](./TasksQueue.md)**
 
 ### 🔔 EventEmitter
 A simple yet structured event system with support for lifecycle hooks and one-time handlers.

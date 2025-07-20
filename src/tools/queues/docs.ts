@@ -67,3 +67,68 @@ export interface InternalQueueTask extends BaseQueueTask {
     priority: TaskPriorityLevel;
     metadata: Record<string, any>;
 }
+
+/**
+ * Configuration options for a `TasksQueue` instance.
+ *
+ * @property autoRun - (Optional) Determines whether the queue should start
+ * processing tasks automatically as soon as they are added.
+ * 
+ * - If `true` (default), the queue begins processing immediately on each task addition.
+ * - If `false`, you must call `.run()` manually to begin processing.
+ *
+ * @property concurrencyLimit - (Optional) The maximum number of tasks that can be
+ * processed in parallel. Defaults to `1`, meaning tasks are processed sequentially.
+ *
+ * - Set a higher number to allow concurrent task execution.
+ * - If set to `0` or a negative value, it will be treated as `1` internally.
+ *
+ * @example
+ * ```ts
+ * const queue = new TasksQueue({
+ *   autoRun: false,
+ *   concurrencyLimit: 5,
+ * });
+ *
+ * queue.add(myTask);
+ * await queue.run(); // Starts processing tasks manually
+ * ```
+ */
+export interface TasksQueueOptions {
+    /**
+     * Whether to automatically start processing tasks
+     * as soon as they are added to the queue.
+     *
+     * @default true
+     *
+     * If set to `false`, you must call `.run()` manually to start execution.
+     */
+    autoRun?: boolean;
+
+    /**
+     * The maximum number of tasks allowed to run concurrently.
+     *
+     * @default 1
+     *
+     * If not provided or set to `0` or a negative value, the queue defaults to sequential execution.
+     * Increase this value to allow parallel processing.
+     */
+    concurrencyLimit?: number;
+}
+
+export interface AddTasksBaseOptions {
+    /**
+     * Whether to automatically start processing tasks
+     * immediately after they are added to the queue in this call.
+     * 
+     * This option overrides the queue instance’s `autoRun` setting
+     * only for this method invocation; it does **not** modify the queue's
+     * global `autoRun` configuration.
+     *
+     * If set to `true`, the queue will start processing tasks right away,
+     * regardless of the queue’s default `autoRun` value.
+     *
+     * @default false
+     */
+    autoRun?: boolean;
+}

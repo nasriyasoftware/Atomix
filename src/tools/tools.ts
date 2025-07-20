@@ -1,24 +1,48 @@
-import TaskQueue from "./queues/TaskQueue";
+import TasksQueue from "./queues/TasksQueue";
 import EventEmitter from "./events/EventEmitter";
 
 class Tools {
     /**
-     * The general-purpose prioritized task queue utility.
+     * A general-purpose, prioritized task queue utility for managing and executing
+     * asynchronous tasks with optional concurrency control and auto-start behavior.
+     *
+     * Tasks are processed based on their priority, and the queue can be configured
+     * to either auto-run on task addition or wait until manually triggered.
+     *
+     * Supports lifecycle hooks such as `onResolve`, `onReject`, and `onDone`
+     * for per-task handling.
+     *
      * @example
-     * const taskQueue = new atomix.tools.TaskQueue();
+     * // Basic usage with autoRun (default true)
+     * const queue = new atomix.tools.TasksQueue();
      * 
-     * taskQueue.addTask({
-     *     id: 'test',
-     *     type: 'test',
-     *     priority: 1,
-     *     action: async () => console.log('test')
+     * queue.addTask({
+     *     id: 'task-1',
+     *     type: 'email',
+     *     priority: 2,
+     *     action: async () => {
+     *         await sendEmail();
+     *     },
+     *     onResolve: () => console.log('Email sent!'),
+     *     onReject: (err) => console.error('Failed to send email:', err)
      * });
      * 
-     * await taskQueue.untilComplete();
-     * // Now all tasks have been processed
+     * await queue.untilComplete();
+     * // All tasks have finished processing
+     *
+     * @example
+     * // Usage with manual execution control
+     * import { TasksQueue } from '@nasriya/atomix/tools';
+     * 
+     * const queue = new TasksQueue({ autoRun: false });
+     * 
+     * queue.addTask({ id: 'x', type: 'job', priority: 1, action: async () => doWork() });
+     * 
+     * await queue.run(); // Start processing tasks manually
+     *
      * @since v1.0.2
      */
-    readonly TaskQueue = TaskQueue;
+    readonly TasksQueue = TasksQueue;
 
     /**
     * A flexible and lightweight event emitter class that supports advanced features like:
