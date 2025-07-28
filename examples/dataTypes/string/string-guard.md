@@ -31,7 +31,7 @@ const stringsGuard = atomix.dataTypes.string.guard;
 ## API Details
 
 ### ✅ `isAlpha`
-Signature: `isAlpha(value: unknown): value is string`
+Signature: `isAlpha(value: unknown): boolean`
 
 Checks if a string contains only alphabetic characters.
 
@@ -41,7 +41,7 @@ stringsGuard.isAlpha('Hello123');   // false
 ```
 
 ### 🔡 `isAlphaNumeric`
-Signature: `isAlphaNumeric(value: unknown): value is string`
+Signature: `isAlphaNumeric(value: unknown): boolean`
 
 Checks if the string contains only letters and numbers.
 
@@ -51,7 +51,7 @@ stringsGuard.isAlphaNumeric('abc 123');   // false
 ```
 
 ### ⚪ `isBlank`
-Signature: `isBlank(value: unknown): value is string`
+Signature: `isBlank(value: unknown): boolean`
 
 Checks if the string contains only whitespace.
 
@@ -64,7 +64,7 @@ stringsGuard.isBlank('not blank');
 ```
 
 ### 📭 `isEmpty`
-Signature: `isEmpty(value: unknown): value is string`
+Signature: `isEmpty(value: unknown): boolean`
 
 Checks if the string is empty.
 ```ts
@@ -76,7 +76,7 @@ stringsGuard.isEmpty(' ');
 ```
 
 ### ✅ `isNotEmpty`
-Signature: `isNotEmpty(value: unknown): value is string`
+Signature: `isNotEmpty(value: unknown): boolean`
 
 Checks if the string is not empty.
 
@@ -102,7 +102,7 @@ stringsGuard.isString(123);
 ```
 
 ### 🔍 `isUUID`
-Signature: `isUUID(value: unknown, version?: 'v1' | 'v4' | 'v5'): value is string`
+Signature: `isUUID(value: unknown, version?: 'v1' | 'v4' | 'v5'): boolean`
 
 Checks if the value is a valid UUID.
 
@@ -115,7 +115,7 @@ stringsGuard.isUUID('550e8400-e29b-11d4-a716-446655440000', 'v1');
 ```
 
 ### 🟩 `isValidString`
-Signature: `isValidString(value: unknown): value is string`
+Signature: `isValidString(value: unknown): boolean`
 
 Checks if the string is non-empty and not just whitespace.
 

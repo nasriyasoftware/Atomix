@@ -1,6 +1,7 @@
 import path from 'path';
 import runtime from '../runtime/runtime';
 import mimes from '../http/mimes/mimes';
+import valueIs from '../../valueIs';
 
 class PathUtils {
     /**
@@ -144,6 +145,40 @@ class PathUtils {
         const relative = path.relative(cwd, path_);
         const normalized = path.normalize(relative);
         return runtime.platform.isWindows() ? normalized.toLowerCase() : normalized;
+    }
+
+    /**
+     * Heuristically determines if the given string is likely a file path.
+     * 
+     * @param str - The string to check.
+     * @returns True if the string is likely a file path, false otherwise.
+     * @since v1.0.17
+     * @example
+     * const isLikelyPath = atomix.path.isLikelyPath('./foo/bar.txt');
+     * console.log(isLikelyPath); // true
+     */
+    isLikelyPath(str: string): boolean {
+        // Must not be empty or only whitespace
+        if (!valueIs.string(str) || valueIs.emptyString(str)) { return false }
+
+        // Skipping URI schemes
+        if (/^[a-zA-Z][a-zA-Z\d+\-.]*:\/\//.test(str)) { return false }
+
+        // Absolute path check (e.g., /foo/bar or C:\foo\bar)
+        if (path.isAbsolute(str)) { return true }
+
+        // Has OS path separators (e.g., / or \)
+        if (str.includes(path.sep)) return true;
+
+        // Has typical file extensions
+        if (mimes.extensions.some(ext => str.endsWith(ext))) { return true }
+
+        // Dot-prefixed (relative paths) like ./ or ../
+        if (str.startsWith(`.${path.sep}`) || str.startsWith(`..${path.sep}`)) { return true }
+
+        if (runtime.platform.isWindows() && /^[a-zA-Z]:\\/.test(str)) { return true }
+
+        return false;
     }
 }
 

@@ -17,7 +17,7 @@ class NumbersGuard {
      * @returns True if the value is a negative number, otherwise false.
      * @since v1.0.0
      */
-    isNegative(value: unknown): value is number {
+    isNegative(value: unknown): boolean {
         return this.isNumber(value) && value < 0;
     }
 
@@ -28,7 +28,7 @@ class NumbersGuard {
      * @returns True if the value is a positive number, otherwise false.
      * @since v1.0.0
      */
-    isPositive(value: unknown): value is number {
+    isPositive(value: unknown): boolean {
         return this.isNumber(value) && value > 0;
     }
 
@@ -50,7 +50,7 @@ class NumbersGuard {
      * @returns True if the value is an integer, otherwise false.
      * @since v1.0.0
      */
-    isInteger(value: unknown): value is number {
+    isInteger(value: unknown): boolean {
         return this.isNumber(value) && Number.isInteger(value);
     }
 
@@ -61,7 +61,7 @@ class NumbersGuard {
      * @returns True if the value is a finite number, otherwise false.
      * @since v1.0.0
      */
-    isFinite(value: unknown): value is number {
+    isFinite(value: unknown): boolean {
         return this.isNumber(value) && Number.isFinite(value);
     }
 
@@ -72,7 +72,7 @@ class NumbersGuard {
      * @returns True if the value is a floating point number, otherwise false.
      * @since v1.0.0
      */
-    isFloat(value: unknown): value is number {
+    isFloat(value: unknown): boolean {
         return this.isNumber(value) && !Number.isInteger(value);
     }
 }

@@ -27,7 +27,7 @@ const numbersGuard = atomix.dataTypes.number.guard;
 ## API Details
 
 ### 🔢 `isFinite`
-Signature: `isFinite(value: unknown): value is number`
+Signature: `isFinite(value: unknown): boolean`
 
 Checks if a value is a finite number.
 
@@ -40,7 +40,7 @@ console.log(numbers.guard.isFinite(NaN));      // false
 ```
 
 ### 🌊 `isFloat`
-Signature: `isFloat(value: unknown): value is number`
+Signature: `isFloat(value: unknown): boolean`
 
 Checks if a value is a floating point number (not an integer).
 
@@ -50,7 +50,7 @@ console.log(numbers.guard.isFloat(42));   // false
 ```
 
 ### 🔢 `isInteger`
-Signature: `isInteger(value: unknown): value is number`
+Signature: `isInteger(value: unknown): boolean`
 
 Checks if a value is an integer.
 
@@ -71,7 +71,7 @@ console.log(numbers.guard.isNaN('not a number')); // false
 ```
 
 ### ➖ `isNegative`
-Signature: `isNegative(value: unknown): value is number`
+Signature: `isNegative(value: unknown): boolean`
 
 Checks if a value is a negative number.
 
@@ -93,7 +93,7 @@ console.log(numbers.guard.isNumber(NaN));      // true (NaN is a number type)
 ```
 
 ### ➕ `isPositive`
-Signature: `isPositive(value: unknown): value is number`
+Signature: `isPositive(value: unknown): boolean`
 
 Checks if a value is a positive number.
 

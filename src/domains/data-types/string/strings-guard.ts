@@ -17,7 +17,7 @@ class StringGuard {
      * @returns True if the value is a string containing only whitespace, otherwise false.
      * @since v1.0.0
      */
-    isBlank(value: unknown): value is string {
+    isBlank(value: unknown): boolean {
         return this.isString(value) && value.trim().length === 0;
     }
 
@@ -28,7 +28,7 @@ class StringGuard {
      * @returns True if the value is an empty string, otherwise false.
      * @since v1.0.0
      */
-    isEmpty(value: unknown): value is string {
+    isEmpty(value: unknown): boolean {
         return this.isString(value) && value.length === 0;
     }
 
@@ -39,7 +39,7 @@ class StringGuard {
      * @returns True if the value is a non-empty string, otherwise false.
      * @since v1.0.0
      */
-    isNotEmpty(value: unknown): value is string {
+    isNotEmpty(value: unknown): boolean {
         return this.isString(value) && value.length > 0;
     }
 
@@ -53,7 +53,7 @@ class StringGuard {
      * A valid string is a string that is not empty and has some content.
      * The string is trimmed before its length is checked.
      */
-    isValidString(value: unknown): value is string {
+    isValidString(value: unknown): boolean {
         return this.isString(value) && value.trim().length > 0;
     }
 
@@ -64,7 +64,7 @@ class StringGuard {
      * @returns True if the value is a string containing only alphabetic characters, otherwise false.
      * @since v1.0.0
      */
-    isAlpha(value: unknown): value is string {
+    isAlpha(value: unknown): boolean {
         return typeof value === 'string' && /^[A-Za-z]+$/.test(value);
     }
 
@@ -75,7 +75,7 @@ class StringGuard {
      * @returns True if the value is a string containing only alphabetic and numeric characters, otherwise false.
      * @since v1.0.0
      */
-    isAlphaNumeric(value: unknown): value is string {
+    isAlphaNumeric(value: unknown): boolean {
         return typeof value === 'string' && /^[A-Za-z0-9]+$/.test(value);
     }
 
@@ -90,7 +90,7 @@ class StringGuard {
      * A valid UUID is a string of the following format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
      * The format is different for each version.
      */
-    isUUID(value: unknown, version?: 'v1' | 'v4' | 'v5'): value is string {
+    isUUID(value: unknown, version?: 'v1' | 'v4' | 'v5'): boolean {
         if (typeof value !== 'string') { return false }
         if (!version) { version = 'v4' }
 

@@ -20,6 +20,7 @@ const path = atomix.path;
 | [changeExtension](#-changeextension)                         | Changes the file extension of a given path.                                   |
 | [isValidPath](#-isvalidpath)                                 | Checks if a path string is valid.                                             |
 | [relativeToCwd](#-relativetocwd)                             | Returns the relative path from the current working directory.                 |
+| [isLikelyPath](#-islikelypath)                               | Heuristically determines if the given string is likely a file path.           |
 
 
 ---
@@ -103,4 +104,15 @@ Returns the relative path from the current working directory.
 const relativePath = path.relativeToCwd('/Users/alice/projects/myapp/data.json');
 console.log(relativePath);
 // 'projects/myapp/data.json' (depending on current working dir)
+```
+
+### 🤔 `isLikelyPath`
+Signature: `isLikelyPath(path_: string): boolean`
+
+Heuristically determines if the given string is likely a file path.
+
+```ts
+console.log(path.isLikelyPath('/Users/alice/projects/myapp/data.json'));  // true
+console.log(path.isLikelyPath('inva|id.txt'));                            // false
+console.log(path.isLikelyPath(''));                                       // false
 ```
