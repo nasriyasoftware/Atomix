@@ -150,7 +150,7 @@ class NetworkUtils {
      * @since v1.0.0
      */
     isValidPort(port: unknown): boolean {
-        return numbersGuard.isInteger(port) && port >= 0 && port <= 65535;
+        return numbersGuard.isNumber(port) && numbersGuard.isInteger(port) && port >= 0 && port <= 65535;
     }
 }
 

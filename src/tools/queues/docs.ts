@@ -50,13 +50,13 @@ export interface BaseQueueTask<T = any, K extends Record<string, any> = Record<s
      * Optional callback executed when the task's action resolves successfully.
      * Receives the resolved value from `action`.
      */
-    onResolve?: (result?: T, metadata?: DeepReadonly<K>) => any | Promise<any>;
+    onResolve?: (result: T, metadata?: DeepReadonly<K>) => any | Promise<any>;
 
     /**
      * Optional callback executed if the task's action rejects with an error.
      * Receives the error thrown by `action`.
      */
-    onReject?: (error?: Error) => any | Promise<any>;
+    onReject?: (error: Error) => any | Promise<any>;
 
     /** Optional callback executed when the task completes, regardless of success or failure. */
     onDone?: () => any | Promise<any>;

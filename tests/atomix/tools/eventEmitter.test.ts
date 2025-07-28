@@ -4,6 +4,7 @@ describe('EventEmitter', () => {
     let emitter: EventEmitter;
 
     beforeEach(() => {
+        if (emitter) { emitter.dispose() }
         emitter = new EventEmitter();
         emitter.maxHandlers = 100; // disable limit during most tests
         jest.useFakeTimers();
@@ -11,6 +12,10 @@ describe('EventEmitter', () => {
 
     afterEach(() => {
         jest.useRealTimers();
+    });
+
+    afterAll(() => {
+        emitter.dispose();
     });
 
     it('should register and call a normal handler', async () => {
@@ -47,7 +52,7 @@ describe('EventEmitter', () => {
         });
 
         emitter.on('async', () => callOrder.push('B'));
-        
+
         await emitter.emit('async');
         await new Promise(res => setTimeout(res, 100));
         expect(callOrder).toEqual(['A', 'B']);
