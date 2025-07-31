@@ -175,3 +175,48 @@ export type Brand<T, Brand extends string> = T & { [brand]: Brand };
  * @since v1.0.7
  */
 export type LooseToStrict<T> = T extends any ? (string extends T ? never : T) : never;
+
+/**
+ * Makes all properties of a type `T` required **and** removes `undefined` from their types.
+ *
+ * Unlike the built-in `Required<T>`, which only removes the optional modifier but retains `undefined` in the type,
+ * `RequiredStrict<T>` ensures that every property is both required and cannot be `undefined`.
+ *
+ * This is especially useful when narrowing configuration objects or enforcing strict initialization contracts.
+ *
+ * @example
+ * type Options = {
+ *   name?: string | undefined;
+ *   age?: number;
+ * };
+ *
+ * type StrictOptions = RequiredStrict<Options>;
+ * // Equivalent to:
+ * // {
+ * //   name: string;
+ * //   age: number;
+ * // }
+ *
+ * const x: StrictOptions = {
+ *   name: 'John', // ✅ must be provided and cannot be undefined
+ *   age: 30       // ✅ must be provided
+ * };
+ *
+ * @example
+ * // With union types:
+ * type Input = {
+ *   kind?: 'a' | 'b' | undefined;
+ *   data?: string | undefined;
+ * };
+ *
+ * type StrictInput = RequiredStrict<Input>;
+ * // {
+ * //   kind: 'a' | 'b';
+ * //   data: string;
+ * // }
+ *
+ * @since v1.0.18
+ */
+export type RequiredStrict<T> = {
+    [P in keyof T]-?: Exclude<T[P], undefined>;
+};
