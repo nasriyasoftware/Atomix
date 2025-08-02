@@ -1,6 +1,6 @@
 {
   "name": "@nasriya/atomix",
-  "version": "1.0.21",
+  "version": "1.0.22",
   "description": "Composable helper functions for building reliable systems",
   "keywords": [
     "networking",
