@@ -220,3 +220,51 @@ export type LooseToStrict<T> = T extends any ? (string extends T ? never : T) : 
 export type RequiredStrict<T> = {
     [P in keyof T]-?: Exclude<T[P], undefined>;
 };
+
+/**
+ * Creates a new type from `T` where:
+ * - Keys **included** in the union `I` are kept **required** (if they are).
+ * - Keys **not included** in `I` become **optional** (i.e., the key may be omitted).
+ * - If `I` is not provided (defaults to `never`), **all keys become optional**.
+ *
+ * ⚠️ Unlike `Partial<T>`, this utility makes **only the key optional**, not the value.
+ * That means you can omit the property entirely, but you **cannot explicitly assign `undefined`**
+ * unless `undefined` is already part of the value type.
+ *
+ * @template T The original object type.
+ * @template I A union of keys from `T` that should remain required. Defaults to `never`.
+ *
+ * @example
+ * type User = {
+ *   id: string;
+ *   name: string;
+ *   email: string;
+ * };
+ *
+ * type WithId = Optional<User, 'id'>;
+ * // Equivalent to:
+ * // {
+ * //   id: string;
+ * //   name?: string;
+ * //   email?: string;
+ * // }
+ *
+ * const u1: WithId = { id: '123' };           // ✅ valid
+ * const u2: WithId = { id: '123', name: undefined }; // ❌ invalid unless `name: string | undefined`
+ *
+ * type AllOptional = Optional<User>;
+ * // {
+ * //   id?: string;
+ * //   name?: string;
+ * //   email?: string;
+ * // }
+ *
+ * @since 1.0.20
+ */
+export type Optional<T, I extends keyof T = never> = Prettify<
+    {
+        [P in keyof T as P extends I ? P : never]: T[P];           // Keep keys in `I` as-is
+    } & {
+        [P in keyof T as P extends I ? never : P]?: T[P];          // Optionalize keys not in `I`
+    }
+>;
