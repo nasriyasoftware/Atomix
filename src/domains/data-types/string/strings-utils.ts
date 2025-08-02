@@ -121,20 +121,20 @@ class StringsUtils {
 
         {
             // Validate input
-            if (!this.guard.isString(str)) { throw new TypeError(`Expected a string for the "str" value but received ${typeof str}`); };
+            if (!stringsGuard.isString(str)) { throw new TypeError(`Expected a string for the "str" value but received ${typeof str}`); };
             if (!numbersGuard.isNumber(maxLength)) { throw new TypeError(`Expected a number for the "maxLength" value but received ${typeof maxLength}`); };
             if (!numbersGuard.isInteger(maxLength)) { throw new TypeError(`Expected an integer for the "maxLength" value but received ${maxLength}`); };
             if (!numbersGuard.isPositive(maxLength)) { throw new RangeError(`Expected a positive number for the "maxLength" value but received ${maxLength}`); };
 
             if (recordsUtils.guard.isRecord(options)) {
                 if ('side' in options && recordsUtils.hasOwnProperty(options, 'side')) {
-                    if (!this.guard.isString(options.side)) { throw new TypeError(`Expected a string for the "side" value but received ${typeof options.side}`); };
+                    if (!stringsGuard.isString(options.side)) { throw new TypeError(`Expected a string for the "side" value but received ${typeof options.side}`); };
                     if (!['start', 'end', 'both'].includes(options.side)) { throw new TypeError(`Expected "start" or "end" for the "side" value but received ${options.side}`); };
                     configs.side = options.side;
                 }
 
                 if ('fillChar' in options && recordsUtils.hasOwnProperty(options, 'fillChar')) {
-                    if (!this.guard.isString(options.fillChar)) { throw new TypeError(`Expected a string for the "fillChar" value but received ${typeof options.fillChar}`); };
+                    if (!stringsGuard.isString(options.fillChar)) { throw new TypeError(`Expected a string for the "fillChar" value but received ${typeof options.fillChar}`); };
                     if (options.fillChar.length > 1) { throw new TypeError(`Expected a single character for the "fillChar" value but received ${options.fillChar}`); };
                     configs.fillChar = options.fillChar;
                 }

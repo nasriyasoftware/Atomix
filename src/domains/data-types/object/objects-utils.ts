@@ -86,7 +86,7 @@ class ObjectUtils {
      * @since v1.0.0
      */
     freeze<T extends Objects>(obj: T): Readonly<T> {
-        const freezable = this.guard.isFreezable(obj);
+        const freezable = objectsGuard.isFreezable(obj);
         if (!freezable) { throw new TypeError(`Expected a freezable object but received ${typeof obj}`); }
 
         return Object.isFrozen(obj) ? obj : Object.freeze(obj);

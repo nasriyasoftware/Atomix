@@ -16,7 +16,7 @@ class ArraysUtils {
      * @since v1.0.0
      */
     head<T>(array: T[]): T | undefined {
-        if (!this.guard.isArray(array)) { throw new TypeError(`Expected an array but received ${typeof array}`); };
+        if (!arraysGuard.isArray(array)) { throw new TypeError(`Expected an array but received ${typeof array}`); };
         return array[0];
     }
 
@@ -27,7 +27,7 @@ class ArraysUtils {
      * @since v1.0.0
      */
     last<T>(array: T[]): T | undefined {
-        if (!this.guard.isArray(array)) { throw new TypeError(`Expected an array but received ${typeof array}`); };
+        if (!arraysGuard.isArray(array)) { throw new TypeError(`Expected an array but received ${typeof array}`); };
         return array[array.length - 1];
     }
 
@@ -41,7 +41,7 @@ class ArraysUtils {
      * @since v1.0.0
      */
     compact<T>(array: T[]): T[] {
-        if (!this.guard.isArray(array)) { throw new TypeError(`Expected an array but received ${typeof array}`); };
+        if (!arraysGuard.isArray(array)) { throw new TypeError(`Expected an array but received ${typeof array}`); };
         return array.filter(Boolean);
     }
 
@@ -55,7 +55,7 @@ class ArraysUtils {
      * @since v1.0.0
      */
     unique<T>(array: T[]): T[] {
-        if (!this.guard.isArray(array)) { throw new TypeError(`Expected an array but received ${typeof array}`); };
+        if (!arraysGuard.isArray(array)) { throw new TypeError(`Expected an array but received ${typeof array}`); };
         return Array.from(new Set(array));
     }
 
@@ -73,7 +73,7 @@ class ArraysUtils {
      * // result: [[1, 2, 3], [4, 5, 6], [7, 8, 9], [10]]
      */
     chunk<T>(array: T[], size: number): T[][] {
-        if (!this.guard.isArray(array)) { throw new TypeError(`Expected an array but received ${typeof array}`); };
+        if (!arraysGuard.isArray(array)) { throw new TypeError(`Expected an array but received ${typeof array}`); };
         if (!numbersUtils.guard.isPositive(size)) { throw new TypeError(`Expected a positive number but received ${size} as ${typeof size}`); };
 
         return Array.from({ length: Math.ceil(array.length / size) }, (_, i) => array.slice(i * size, i * size + size));
@@ -127,7 +127,7 @@ class ArraysUtils {
      * // flattened: [1, 2, 3, 4, 5, 6]
      */
     flatten<T>(array: T[], depth: number = 1) {
-        if (!this.guard.isArray(array)) { throw new TypeError(`Expected an array but received ${typeof array}`); };
+        if (!arraysGuard.isArray(array)) { throw new TypeError(`Expected an array but received ${typeof array}`); };
         if (!numbersUtils.guard.isPositive(depth)) { throw new TypeError(`Expected a positive number but received ${depth} as ${typeof depth}`); };
 
         return array.flat(depth);
@@ -161,8 +161,8 @@ class ArraysUtils {
      * // difference: [1, 4]
      */
     difference<T>(a: T[], b: T[]) {
-        if (!this.guard.isArray(a)) { throw new TypeError(`Expected "array1" to be an array but received ${typeof a}`); };
-        if (!this.guard.isArray(b)) { throw new TypeError(`Expected "array2" to be an array but received ${typeof b}`); };
+        if (!arraysGuard.isArray(a)) { throw new TypeError(`Expected "array1" to be an array but received ${typeof a}`); };
+        if (!arraysGuard.isArray(b)) { throw new TypeError(`Expected "array2" to be an array but received ${typeof b}`); };
 
         const combined = new Set([...a, ...b])
         return Array.from(combined).filter(item => !a.includes(item) || !b.includes(item));
@@ -181,8 +181,8 @@ class ArraysUtils {
      * // result: [2, 3]
      */
     intersect<T>(a: T[], b: T[]) {
-        if (!this.guard.isArray(a)) { throw new TypeError(`Expected "array1" to be an array but received ${typeof a}`); };
-        if (!this.guard.isArray(b)) { throw new TypeError(`Expected "array2" to be an array but received ${typeof b}`); };
+        if (!arraysGuard.isArray(a)) { throw new TypeError(`Expected "array1" to be an array but received ${typeof a}`); };
+        if (!arraysGuard.isArray(b)) { throw new TypeError(`Expected "array2" to be an array but received ${typeof b}`); };
 
         const combined = new Set([...a, ...b])
         return Array.from(combined).filter(item => a.includes(item) && b.includes(item));
@@ -212,7 +212,7 @@ class ArraysUtils {
      * // array: [1, 3]
      */
     toggleValue<T>(arr: T[], value: T, options?: { mutable?: boolean }) {
-        if (!this.guard.isArray(arr)) { throw new TypeError(`Expected an array but received ${typeof arr}`); };
+        if (!arraysGuard.isArray(arr)) { throw new TypeError(`Expected an array but received ${typeof arr}`); };
 
         const mutable = (() => {
             if (options === undefined) { return false; };
@@ -252,7 +252,7 @@ class ArraysUtils {
      * // result: [2, 4, 6]
      */
     async mapAsync<T, U>(arr: T[], fn: (item: T, index: number) => Promise<U>) {
-        if (!this.guard.isArray(arr)) { throw new TypeError(`Expected an array but received ${typeof arr}`); };
+        if (!arraysGuard.isArray(arr)) { throw new TypeError(`Expected an array but received ${typeof arr}`); };
         if (typeof fn !== "function") { throw new TypeError(`Expected a function but received ${typeof fn}`); };
         return Promise.all(arr.map((item, index) => fn(item, index)));
     }
@@ -305,8 +305,8 @@ class ArraysUtils {
      * // transposed: [[1, 4, 7], [2, 5, 8], [3, 6, 9]]
      */
     transpose<T>(matrix: T[][]): T[][] {
-        if (!this.guard.isArray(matrix)) { throw new TypeError(`Expected an array but received ${typeof matrix}`); };
-        if (!this.guard.isArrayOfArrays(matrix)) { throw new TypeError(`Expected an array of arrays but received ${matrix}`); };
+        if (!arraysGuard.isArray(matrix)) { throw new TypeError(`Expected an array but received ${typeof matrix}`); };
+        if (!arraysGuard.isArrayOfArrays(matrix)) { throw new TypeError(`Expected an array of arrays but received ${matrix}`); };
 
         if (matrix.length === 0) return [];
         return matrix[0].map((_, i) => matrix.map(row => row[i]));
@@ -326,7 +326,7 @@ class ArraysUtils {
      * // shuffled: [1, 4, 2, 5, 3]
      */
     shuffle<T>(arr: T[]): T[] {
-        if (!this.guard.isArray(arr)) { throw new TypeError(`Expected an array but received ${typeof arr}`); };
+        if (!arraysGuard.isArray(arr)) { throw new TypeError(`Expected an array but received ${typeof arr}`); };
         return [...arr].sort(() => Math.random() - 0.5);
     }
 }
