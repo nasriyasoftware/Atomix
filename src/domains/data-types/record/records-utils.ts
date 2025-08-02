@@ -11,32 +11,41 @@ class RecordsUtils {
     get guard() { return recordsGuard }
 
     /**
-     * Checks if the specified object has the given property as its own property.
-     * 
-     * @param obj - The object to check for the property.
-     * @param prop - The name of the property to check.
-     * @returns True if the object has the specified property as its own property, otherwise false.
-     * @throws {TypeError} If the provided object is not a Record.
+     * Checks whether the given record has the specified property as its own (non-inherited) property.
+     *
+     * This utility supports both known keys from the type (`keyof T`) and arbitrary string values.
+     * It preserves autocomplete for known keys and enables proper type narrowing:  
+     * - If `prop` is a known key of `T`, the return type confirms it.  
+     * - If `prop` is not in `T`, the result is still a valid boolean without a type error.
+     *
+     * @template T - A record type with string keys.
+     * @param obj - The record to inspect.
+     * @param prop - A property key to check for. Supports known keys (with autocomplete) and arbitrary strings.
+     * @returns `true` if the property exists directly on the object (not inherited), otherwise `false`.
+     * @throws {TypeError} If the provided value is not a valid record.
+     *
      * @since v1.0.0
+     *
      * @example
-     * const record = { foo: 'bar' };
-     * hasOwnProperty(record, 'foo'); // ✅ true
+     * const user = { id: 1, name: 'Alice' };
+     * hasOwnProperty(user, 'id'); // ✅ true
+     *
      * @example
-     * const record = { foo: 'bar' };
-     * hasOwnProperty(record, 'bar'); // ❌ false
+     * const user = { id: 1 };
+     * hasOwnProperty(user, 'email'); // ❌ false — not in object, even if declared in the type
+     *
      * @example
-     * const invalid = null;
-     * hasOwnProperty(invalid, 'foo'); // ❌ false
+     * const dynamic = {} as Record<string, any>;
+     * hasOwnProperty(dynamic, 'foo'); // ✅ works with arbitrary strings too
+     *
      * @example
-     * const invalid = [1, 2, 3];
-     * hasOwnProperty(invalid, 'foo'); // ❌ false
+     * hasOwnProperty(null, 'foo'); // ❌ throws TypeError
      */
-    hasOwnProperty(obj: unknown, prop: string): boolean {
-        const isRecord = this.guard.isRecord(obj);
-        if (!isRecord) {
-            throw new TypeError(`Expected an object but received ${typeof obj}`);
-        }
-
+    hasOwnProperty<T extends Record<string, any>>(
+        obj: T,
+        prop: keyof T | (string & {})
+    ): prop is keyof T {
+        if (!recordsGuard.isRecord(obj)) { throw new TypeError(`Expected an object but received ${typeof obj}`) }
         return Object.prototype.hasOwnProperty.call(obj, prop);
     }
 
@@ -52,7 +61,7 @@ class RecordsUtils {
      * // Map(2) { "foo" => "bar", "baz" => "qux" }
      */
     toMap<K extends string, V>(obj: Record<K, V>): Map<K, V> {
-        if (!this.guard.isRecord(obj)) {
+        if (!recordsGuard.isRecord(obj)) {
             throw new TypeError(`Expected an object but received ${typeof obj}`);
         }
 

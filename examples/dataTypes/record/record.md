@@ -32,14 +32,53 @@ const records = atomix.dataTypes.record;
 ## API Details
 
 ### ✅ `hasOwnProperty`
-Signature: `hasOwnProperty(obj: unknown, prop: string): boolean`
+Signature:
+```ts
+hasOwnProperty<T extends Record<string, any>>(
+    obj: T,
+    prop: keyof T | (string & {})
+): prop is keyof T
+```
 
 Checks if the specified property exists as the object's own property.
+Returns `true` if the property is directly defined on the object (not inherited), and **narrows the** `prop` **type to** `keyof T` when the check passes.
 
+**Basic Usage:**
 ```ts
 const record = { foo: 'bar' };
 records.hasOwnProperty(record, 'foo'); // true
 records.hasOwnProperty(record, 'bar'); // false
+```
+
+**🧠 Type Narrowing Example:**
+You can use `hasOwnProperty` in guards to safely access properties with type narrowing:
+```ts
+type Data = { name?: string; age?: number };
+const user: Data = { name: 'Ali' };
+
+if (records.hasOwnProperty(user, 'name')) {
+  // ✅ Inside this block, TS knows: prop === 'name' ∈ keyof Data
+  console.log(user.name.toUpperCase()); // OK — user.name is now narrowed to string | undefined
+}
+```
+
+**🔍 Useful with Unknown or Generic Keys:**
+```ts
+function logProp<T extends Record<string, any>>(obj: T, key: string) {
+  if (records.hasOwnProperty(obj, key)) {
+    // ✅ key is now narrowed to keyof T
+    console.log(obj[key]); // Type-safe access
+  } else {
+    console.warn(`Missing property: ${key}`);
+  }
+}
+```
+
+**🚫 Invalid Object Throws:**
+```ts
+records.hasOwnProperty(null, 'foo');       // ❌ TypeError
+records.hasOwnProperty(undefined, 'bar');  // ❌ TypeError
+records.hasOwnProperty([1, 2], 'length');  // ❌ TypeError
 ```
 
 ### 🔄 `toMap`
