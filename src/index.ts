@@ -5,7 +5,7 @@ export default atomix;
 export { mimeData } from './domains/http/mimes/mime-data';
 export { currencies } from './data/currencies';
 export type {
-    Objects, DeepReadonly, Prettify, Brand, LooseToStrict, RequiredStrict, Optional, OptionalLoose,
+    Objects, DeepReadonly, Prettify, Brand, LooseToStrict, RequiredStrict,
     Mime, FileExtension,
     RRType,
     TracerouteHop, PortCheckOptions,
