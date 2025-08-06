@@ -4,6 +4,58 @@ import valueIs from "../../valueIs";
 import TasksQueue from "./TasksQueue";
 import { AdaptiveTaskQueueOptions, AddTasksBaseOptions, BaseQueueTask } from "./docs";
 
+/**
+ * AdaptiveTaskQueue extends the base TasksQueue by dynamically adjusting
+ * its concurrency limit based on the observed task addition rate (RPS).
+ * 
+ * This class tracks the rate of tasks being added over a rolling time window,
+ * then periodically recalculates and adjusts the concurrency limit to optimize
+ * throughput and resource usage.
+ * 
+ * It is especially useful in environments with variable workload, where
+ * adapting concurrency based on real-time demand can improve performance and
+ * efficiency without manual tuning.
+ * 
+ * Key features:
+ * - Tracks requests per second (RPS) using a sliding time window.
+ * - Automatically increases or decreases concurrency limit based on RPS.
+ * - Emits concurrency update events to allow external monitoring.
+ * - Configurable time window for rate tracking and debounce delay for recalculations.
+ * 
+ * @extends TasksQueue
+ * 
+ * @param {AdaptiveTaskQueueOptions} [options] - Configuration options for adaptive behavior.
+ * @param {number} [options.windowDurationMs=1000] - Duration of the rolling window in milliseconds for RPS calculation.
+ * @param {number} [options.recalcDebounce=200] - Debounce delay in milliseconds before concurrency is recalculated.
+ * @param {boolean} [options.autoRun] - Whether to automatically run the queue when tasks are added (inherited from TasksQueue).
+ * @param {number} [options.concurrencyLimit] - Initial concurrency limit (inherited from TasksQueue).
+ * 
+ * @example
+ * ```ts
+ * import { AdaptiveTaskQueue } from '@nasriya/atomix/tools';
+ * 
+ * const queue = new AdaptiveTaskQueue({
+ *   windowDurationMs: 500,
+ *   recalcDebounce: 100,
+ *   autoRun: true,
+ * });
+ * 
+ * queue.onConcurrencyUpdate(newLimit => {
+ *   console.log(`Concurrency updated to: ${newLimit}`);
+ * });
+ * 
+ * queue.addTask({
+ *   type: 'task',
+ *   action: async () => {
+ *     // Your async work here
+ *   }
+ * });
+ * 
+ * await queue.untilComplete();
+ * ```
+ * 
+ * @since 1.0.23
+ */
 export class AdaptiveTaskQueue extends TasksQueue {
     #_addedSinceLast = 0;
     readonly #_rateWindow: number[] = [];
