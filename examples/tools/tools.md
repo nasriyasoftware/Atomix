@@ -17,10 +17,11 @@ import * as tools from '@nasriya/atomix/tools';
 ```
 ---
 ## Available Tools
-| Tool                           | Description                                          | API Reference                    |
-| ------------------------------ | ---------------------------------------------------- | -------------------------------- |
-| [TasksQueue](#️-tasksqueue)     | A prioritized task queue manager for async workflows | [API Details](./TasksQueue.md)   |
-| [EventEmitter](#️-eventemitter) | A simple event emitter for event-driven applications | [API Details](./EventEmitter.md) |
+| Tool                                     | Description                                          | API Reference                         |
+| ---------------------------------------- | ---------------------------------------------------- | ------------------------------------- |
+| [TasksQueue](#️-tasksqueue)               | A prioritized task queue manager for async workflows | [API Details](./TasksQueue.md)        |
+| [AdaptiveTaskQueue](#️-adaptivetaskqueue) | A task queue with dynamic concurrency adjustment     | [API Details](./AdaptiveTaskQueue.md) |
+| [EventEmitter](#️-eventemitter)           | A simple event emitter for event-driven applications | [API Details](./EventEmitter.md)      |
 
 ---
 ## Core APIs
@@ -44,6 +45,32 @@ await taskQueue.untilComplete();
 ```
 
 **[:: See full API reference & examples → ::](./TasksQueue.md)**
+
+### ⚙️ AdaptiveTaskQueue
+An extension of `TasksQueue` that dynamically adjusts its concurrency limit based on the rate of task additions (RPS). Useful for adaptive workload scaling in real-time.
+
+```ts
+const adaptiveQueue = new atomix.tools.AdaptiveTaskQueue({
+    autoRun: true,
+    windowDurationMs: 500,
+    recalcDebounce: 100,
+});
+
+adaptiveQueue.onConcurrencyUpdate(newLimit => {
+    console.log(`Concurrency limit updated to ${newLimit}`);
+});
+
+adaptiveQueue.addTask({
+    type: 'work',
+    action: async () => {
+        // your async task here
+    }
+});
+
+await adaptiveQueue.untilComplete();
+```
+
+**[:: See full API reference & examples → ::](./AdaptiveTaskQueue.md)**
 
 ### 🔔 EventEmitter
 A simple yet structured event system with support for lifecycle hooks and one-time handlers.

@@ -1,7 +1,52 @@
+import AdaptiveTaskQueue from "./queues/AdaptiveTaskQueue";
 import TasksQueue from "./queues/TasksQueue";
 import EventEmitter from "./events/EventEmitter";
 
 class Tools {
+    /**
+     * A task queue that dynamically adjusts its concurrency level based on
+     * the current load (requests per second), allowing better scalability under
+     * fluctuating workloads.
+     *
+     * Built on top of `TasksQueue`, it automatically recalculates the optimal
+     * concurrency based on a rolling window of task addition rates and scales
+     * accordingly. This allows balancing throughput and resource usage without
+     * manual tuning.
+     *
+     * The adaptive behavior is based on thresholds:
+     * - RPS > 7000 → concurrency = 800  
+     * - RPS > 5000 → concurrency = 500  
+     * - RPS > 1000 → concurrency = 200  
+     * - Otherwise → concurrency = 100
+     *
+     * Additionally, it emits the updated concurrency value through an optional
+     * `onConcurrencyUpdate()` callback when thresholds are crossed.
+     *
+     * @example
+     * const queue = new atomix.tools.AdaptiveTaskQueue();
+     *
+     * // Track dynamic concurrency changes
+     * queue.onConcurrencyUpdate((concurrency) => {
+     *     console.log('Adjusted concurrency to:', concurrency);
+     * });
+     *
+     * // Add tasks as usual
+     * queue.addTask({
+     *     id: 'compress-1',
+     *     type: 'compressor',
+     *     priority: 1,
+     *     action: async () => await compressFile()
+     * });
+     *
+     * await queue.untilComplete();
+     *
+     * @note You should not set `concurrencyLimit` manually on this queue,
+     * as it's managed internally based on adaptive logic.
+     *
+     * @since v1.0.23
+     */
+    readonly AdaptiveTaskQueue = AdaptiveTaskQueue;
+
     /**
      * A general-purpose, prioritized task queue utility for managing and executing
      * asynchronous tasks with optional concurrency control and auto-start behavior.

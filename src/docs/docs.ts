@@ -8,7 +8,7 @@ export type { AccessPermissions, PathAccessPermissions, AccessOptions } from "..
 export type { DiscoverHostsOptions } from "../domains/network/assets/local";
 export type { Serializable } from "../domains/http/body-codec";
 export type { RandomOptions } from "../domains/utils/docs";
-export type { BaseQueueTask, TasksQueueOptions, AddTasksBaseOptions } from "../tools/queues/docs";
+export type { BaseQueueTask, TasksQueueOptions, AddTasksBaseOptions, AdaptiveTaskQueueOptions } from "../tools/queues/docs";
 export type { EventHandler, AddHandlerOptions } from "../tools/events/docs";
 export type { InputSanitizationOptions, FieldRuleMap, SanitizedResult, SanitizationViolation } from "../domains/http/docs";
 export type { StringPaddingOptions } from "../domains/data-types/string/strings-utils";

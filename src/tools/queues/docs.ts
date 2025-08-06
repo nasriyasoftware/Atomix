@@ -1,4 +1,4 @@
-import { DeepReadonly } from "../../docs/docs";
+import { DeepReadonly, Prettify } from "../../docs/docs";
 
 export type TaskPriorityLevel = 0 | 1 | 2 | 3; // 0 = highest, 3 = lowest
 
@@ -115,6 +115,40 @@ export interface TasksQueueOptions {
      */
     concurrencyLimit?: number;
 }
+
+/**
+ * Configuration options for an `AdaptiveTaskQueue` instance.
+ * 
+ * @example
+ * ```ts
+ * const queue = new AdaptiveTaskQueue({
+ *   autoRun: false,
+ * });
+ *
+ * queue.add(myTask);
+ * await queue.run(); // Starts processing tasks manually
+ * ```
+ * 
+ * @see {@link [AdaptiveTaskQueue](./AdaptiveTaskQueue.ts)}
+ * @since 1.0.23
+ */
+export type AdaptiveTaskQueueOptions = Prettify<
+    Omit<TasksQueueOptions, 'concurrencyLimit'> & {
+        /**
+         * The duration (in milliseconds) over which to calculate the average requests per second (RPS).
+         * @default 1000
+         * @since 1.0.23
+         */
+        windowDurationMs?: number;
+
+        /**
+         * The delay (in milliseconds) before recalculating the concurrency limit.
+         * @default 200
+         * @since 1.0.23
+         */
+        recalcDebounce?: number;
+    }
+>;
 
 export interface AddTasksBaseOptions {
     /**

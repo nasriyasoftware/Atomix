@@ -1,7 +1,7 @@
 import { BaseQueueTask } from '../../../src/tools/queues/docs';
-import TasksQueue from '../../../src/tools/queues/TasksQueue'; // adjust path if needed
+import TasksQueue from '../../../src/tools/queues/TasksQueue';
 
-describe('TasksQueue – extended behaviors', () => {
+describe('TasksQueue - extended behaviors', () => {
     it('should process a task immediately if method-level autoRun is true, regardless of queue autoRun setting', async () => {
         const queue = new TasksQueue({ autoRun: false });
 
