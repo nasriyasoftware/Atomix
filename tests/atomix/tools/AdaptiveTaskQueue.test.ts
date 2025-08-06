@@ -36,8 +36,6 @@ describe('AdaptiveTaskQueue', () => {
         }
 
         await queue.untilComplete();
-        // await atomix.utils.sleep(2000);
-
         // Since RPS > 1000, we expect concurrency to have gone above 100
         expect(queue.concurrencyLimit).toBeGreaterThanOrEqual(200);
     });
@@ -66,7 +64,7 @@ describe('AdaptiveTaskQueue', () => {
         await queue.untilComplete();
 
         expect(updates.length).toBeGreaterThan(0);
-        // Because 10k tasks with delays -> RPS high enough to increase concurrency limit
+        // Because 3k tasks with delays -> RPS high enough to increase concurrency limit
         expect(updates[updates.length - 1]).toBeGreaterThanOrEqual(200);
     });
 
