@@ -11,16 +11,27 @@ import { EventEmitter } from '@nasriya/atomix/tools';
 
 const emitter = new EventEmitter();
 ```
+
+You may optionally provide a type map to get full type safety for event names and arguments:
+
+```ts
+type Events = {
+    load: (id: number) => void;
+    ready: () => void;
+};
+
+const emitter = new EventEmitter<Events>();
+```
 ---
 
 ## Key Features
-- Supports three types of handlers: `beforeAll`, `normal`, `afterAll`.
-- `beforeAll` runs before all normal handlers, `afterAll` runs after.
-- `normal` handlers can be persistent or one-time (`once`).
-- Maximum handler limit enforcement with custom or built-in overflow handlers.
-- Global wildcard event `*` support.
-- Removes handlers by reference or clears all.
-- Async-safe event emission with automatic error routing.
+- Supports three handler types: `beforeAll`, `normal`, `afterAll`
+- `beforeAll` runs before all normal handlers, `afterAll` runs after
+- One-time handlers via `{ once: true }`
+- Global wildcard (`'*'`) event support
+- Total handler limit enforcement with customizable overflow behavior
+- Async-safe event emission
+- Strong TypeScript typing via generics
 ---
 
 ## API Reference
@@ -29,36 +40,53 @@ const emitter = new EventEmitter();
 **Signature:** `on(eventName, handler, options?): this`
 
 Registers an event handler.
-
-- `eventName`: The name of the event (string).
-- `handler`: The function to execute.
+- `eventName`:
+  - A specific event name
+  - Or `'*'` to listen to all events
+- `handler`:
+  - For named events: the event’s handler function
+  - For `'*'`: receives the event name as the first argument, followed by the event arguments
 - `options` (optional):
-    - `type`: `'beforeAll' | 'normal' | 'afterAll'` — default is `'normal'`.
-    - `once`: If `true`, the handler is removed after the first invocation.
+  - `type`: `'beforeAll' | 'normal' | 'afterAll'` (default: `'normal'`)
+  - `once`: If `true`, the handler is removed after the first invocation
 
 ```ts
-emitter.on('load', () => console.log('Loaded'));
-emitter.on('load', () => console.log('Init'), { type: 'beforeAll' });
-emitter.on('load', () => console.log('Done'), { type: 'afterAll' });
+emitter.on('ready', () => {
+    console.log('Emitter is ready');
+}, { once: true });
+
+emitter.on('ready', () => {
+    console.log('Emitter is ready before all handlers');
+}, { type: 'beforeAll' });
+
+emitter.on('load', (id) => {
+    console.log(`${id} is loading...`);
+});
 ```
 
 ### `emit`
 **Signature:** `emit(eventName, ...args): Promise<void>`
 
-Triggers all handlers for the given event.
+Emits an event and triggers all associated handlers.
+
+- Handlers are executed in the order:
+  1. `beforeAll`
+  2. `normal`
+  3. `afterAll`
+- Global (`'*'`) handlers always run and receive the event name as their first argument
+- Supports both synchronous and asynchronous handlers
 
 ```ts
 await emitter.emit('load', 123);
 ```
 
-Handlers are run in the order: `beforeAll` → `normal` → `afterAll`. If any are async, emit will await them.
-
 ### `onMaxHandlers`
 **Signature:** `onMaxHandlers(handlerOrError): this`
 
-Defines what happens when the number of handlers exceeds the limit.
-- Pass a function `(eventName) => {}` to be notified when the limit is exceeded.
-- Or pass an `Error` to be thrown immediately when the limit is breached.
+Defines the behavior when the total number of handlers exceeds the configured limit.
+
+- Pass a function to be notified when the limit is exceeded
+- Or pass an `Error` instance to be thrown immediately
 
 ```ts
 emitter.maxHandlers = 5;
@@ -104,52 +132,131 @@ Returns the total number of handlers registered.
 console.log(emitter.handlersCount); // 3
 ```
 
-### `maxHandlers`
+### `maxTotalHandlers`
 
-Controls or retrieves the maximum allowed number of handlers.
+Gets or sets the maximum number of handlers allowed across all events.
 
 ```ts
-emitter.maxHandlers = 5;
-console.log(emitter.maxHandlers); // 5
+emitter.maxTotalHandlers = 5;
+console.log(emitter.maxTotalHandlers); // 5
 ```
+
+### `maxHandlers` (deprecated)
+
+Alias for [maxTotalHandlers](#maxTotalHandlers).
+
+> [!WARNING]
+> `maxHandlers` is *deprecated* and will be removed in a future minor release.  
+> Use `maxTotalHandlers` instead.
 
 ---
 ## Handler Types
-- `beforeAll` — A singleton handler that runs before any normal handlers. Only one `beforeAll` can exist per event.
-- `normal` — Regular handlers registered in order. Can be configured to run once or persist.
-- `afterAll` — A singleton handler that runs after all normal handlers. Only one `afterAll` can exist per event.
-
----
-## Example: User Login Event
-
-```ts
-const authEmitter = new EventEmitter();
-
-authEmitter.on('login', () => {
-  console.log('Main handler: user logged in');
-});
-
-authEmitter.on('login', () => {
-  console.log('Preparing login context');
-}, { type: 'beforeAll' });
-
-authEmitter.on('login', () => {
-  console.log('Logging activity');
-}, { type: 'afterAll' });
-
-await authEmitter.emit('login');
-
-// Output:
-// Preparing login context
-// Main handler: user logged in
-// Logging activity
-```
+- **`beforeAll`**  
+  A singleton handler that runs before any normal handlers.
+- **`normal`**  
+  Standard handlers registered in order. May be one-time via `{ once: true }`.
+- **`afterAll`**  
+  A singleton handler that runs after all normal handlers.
 
 ---
 ## Error Handling
 - Errors thrown inside any handler are caught and logged by default.
 - You can override the `onMaxHandlers` behavior to throw custom errors.
 
+---
+## Example: Typed User Login Event
+
+```ts
+// Define the events and their argument types
+type AuthEvents = {
+    login: (user: { id: number; name: string }) => void;
+    logout: (userId: number) => void;
+};
+
+const authEmitter = new EventEmitter<AuthEvents>();
+
+// beforeAll: setup user session or context
+authEmitter.on('login', (user) => {
+    console.log(`Preparing login context for ${user.name}`);
+}, { type: 'beforeAll' });
+
+// normal: main login handler
+authEmitter.on('login', (user) => {
+    console.log(`User ${user.name} logged in successfully`);
+});
+
+// afterAll: logging or analytics
+authEmitter.on('login', (user) => {
+    console.log(`Logging login activity for ${user.name}`);
+}, { type: 'afterAll' });
+
+// global handler: runs for any event
+authEmitter.on('*', (eventName, ...args) => {
+    console.log(`Global handler detected event "${eventName}" with payload:`, args);
+});
+
+// simulate a user login
+await authEmitter.emit('login', { id: 42, name: 'Alice' });
+
+// TypeScript enforces correct arguments:
+// authEmitter.emit('login', { id: 'wrong', name: 'Alice' }); // ❌ Error
+```
+
+## Example: Typed File Upload Event
+
+```ts
+// Define events and argument types
+type UploadEvents = {
+    start: (file: { name: string; size: number }) => void;
+    progress: (file: { name: string }, percent: number) => void;
+    complete: (file: { name: string }) => void;
+    error: (file: { name: string }, error: Error) => void;
+};
+
+const uploadEmitter = new EventEmitter<UploadEvents>();
+
+// beforeAll: prepare resources for all start events
+uploadEmitter.on('start', (file) => {
+    console.log(`Preparing upload resources for ${file.name}`);
+}, { type: 'beforeAll' });
+
+// normal: handle upload start
+uploadEmitter.on('start', (file) => {
+    console.log(`Uploading file: ${file.name} (${file.size} bytes)`);
+});
+
+// afterAll: cleanup or logging
+uploadEmitter.on('start', (file) => {
+    console.log(`Upload start event completed for ${file.name}`);
+}, { type: 'afterAll' });
+
+// progress: track progress
+uploadEmitter.on('progress', (file, percent) => {
+    console.log(`Upload progress for ${file.name}: ${percent}%`);
+});
+
+// complete: handle successful upload
+uploadEmitter.on('complete', (file) => {
+    console.log(`File ${file.name} uploaded successfully`);
+});
+
+// error: handle upload errors
+uploadEmitter.on('error', (file, error) => {
+    console.error(`Error uploading ${file.name}:`, error.message);
+});
+
+// global handler: runs for any upload event
+uploadEmitter.on('*', (eventName, ...args) => {
+    console.log(`Event "${eventName}" triggered with args:`, args);
+});
+
+// simulate an upload
+const file = { name: 'photo.jpg', size: 1200 };
+await uploadEmitter.emit('start', file);
+await uploadEmitter.emit('progress', file, 50);
+await uploadEmitter.emit('progress', file, 100);
+await uploadEmitter.emit('complete', file);
+```
 ---
 ## See Also
 
