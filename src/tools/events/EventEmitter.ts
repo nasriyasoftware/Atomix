@@ -47,6 +47,66 @@ import { EventData, EventHandler, AddHandlerOptions, EventName, GlobalEventHandl
  *
  * @since v1.0.8
  */
+
+/**
+ * A flexible and lightweight event emitter class with full TypeScript support.
+ *
+ * Features:
+ * - Strongly typed event names and handler arguments using generics (`EventsMap`).
+ * - Global `'*'` handlers that receive the event name as the first argument, followed by the event's arguments.
+ * - `beforeAll` and `afterAll` handler types for lifecycle-style hooks.
+ * - One-time handlers via `on` with `{ once: true }` option (removed automatically after first execution).
+ * - Handler limits with overflow detection via `maxTotalHandlers` and custom overflow behavior.
+ * - Backward-compatible `maxHandlers` property (deprecated in favor of `maxTotalHandlers`).
+ *
+ * This implementation allows both standard event handlers and advanced lifecycle hooks,
+ * while supporting both typed and untyped usage.
+ *
+ * @example
+ * ```ts
+ * const emitter = new atomix.tools.EventEmitter();
+ *
+ * // Regular handler (called in the order added)
+ * emitter.on('data', (value) => console.log('Received:', value));
+ *
+ * // One-time handler
+ * emitter.on('data', (value) => console.log('Once:', value), { once: true });
+ *
+ * // Setup logic before all regular handlers
+ * emitter.on('data', () => console.log('Before All'), { type: 'beforeAll' });
+ *
+ * // Cleanup logic after all regular handlers
+ * emitter.on('data', () => console.log('After All'), { type: 'afterAll' });
+ *
+ * // Global handler receives the event name first
+ * emitter.on(`'*'`, (event, ...args) => console.log(`Global: ${event}`, args));
+ *
+ * // Emit the event
+ * await emitter.emit('data', 42);
+ * ```
+ *
+ * @example
+ * ```ts
+ * const emitter = new atomix.tools.EventEmitter();
+ *
+ * // Option 1: Throw an Error immediately when the limit is exceeded
+ * emitter.maxTotalHandlers = 2;
+ * emitter.onMaxHandlers(new Error('Handler limit exceeded'));
+ *
+ * emitter.on('load', () => {});
+ * emitter.on('load', () => {});
+ * emitter.on('load', () => {}); // throws immediately
+ *
+ * // Option 2: Use a custom function to handle overflows (debounced)
+ * emitter.onMaxHandlers((eventName) => {
+ *   console.warn(`Handler overflow on event: ${eventName}`);
+ * });
+ * ```
+ *
+ * @template EventsMap - Optional type map for event names and handler signatures. Defaults to `{}` for untyped usage.
+ *
+ * @since v1.0.8
+ */
 export class EventEmitter<EventsMap extends Record<string, EventHandler> = {}> {
     readonly #_events: Map<string, EventData> = new Map();
     readonly #_stats = {
@@ -309,11 +369,27 @@ export class EventEmitter<EventsMap extends Record<string, EventHandler> = {}> {
      *
      * When the number of handlers for an event exceeds the maximum allowed, this handler is called with the event name as an argument.
      * 
-     * The handler is debounced to prevent excessive calls when the maximum number of handlers is exceeded multiple times in quick succession.
+     * - If a **function** is provided, it is debounced (100ms) to prevent excessive calls during rapid handler additions.
+     * - If an **Error** object is provided, it will be thrown immediately when the limit is exceeded.
      *
-     * @param handler - A function to call when the maximum number of handlers is exceeded or an error to throw.
-     * @returns The EventEmitter instance.
-     * @throws {TypeError} If the handler is not a function or an error.
+     * @param handler - A function to call when the maximum number of handlers is exceeded, or an Error to throw.
+     * @returns The EventEmitter instance, allowing method chaining.
+     *
+     * @throws {TypeError} If the handler is not a function or an Error instance.
+     *
+     * @example
+     * ```ts
+     * const emitter = new atomix.tools.EventEmitter();
+     *
+     * // Throw an error when the max handlers limit is exceeded
+     * emitter.onMaxHandlers(new Error('Handler limit exceeded'));
+     *
+     * // Or provide a custom function
+     * emitter.onMaxHandlers((eventName) => {
+     *   console.warn(`Handler overflow on event: ${eventName}`);
+     * });
+     * ```
+     *
      * @since v1.0.8
      */
     onMaxHandlers(handler: ((eventName: string) => any) | Error) {
