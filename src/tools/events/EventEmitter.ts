@@ -1,7 +1,7 @@
 import valueIs from '../../valueIs';
 import commonUtils from '../../domains/utils/utils';
 import recordsUtils from '../../domains/data-types/record/records-utils';
-import { EventData, EventHandler, AddHandlerOptions } from './docs';
+import { EventData, EventHandler, AddHandlerOptions, EventName, GlobalEventHandler } from './docs';
 
 /**
  * A flexible and lightweight event emitter class that supports advanced features like:
@@ -47,7 +47,7 @@ import { EventData, EventHandler, AddHandlerOptions } from './docs';
  *
  * @since v1.0.8
  */
-export class EventEmitter {
+export class EventEmitter<EventsMap extends Record<string, EventHandler> = {}> {
     readonly #_events: Map<string, EventData> = new Map();
     readonly #_stats = {
         handlers: { number: 0, max: 10 },
@@ -131,7 +131,11 @@ export class EventEmitter {
         },
         runHandler: async (handler: EventHandler, eventName: string, ...args: any) => {
             try {
-                await handler(...args);
+                if (eventName === '*') {
+                    await handler(eventName, ...args);
+                } else {
+                    await handler(...args);
+                }
             } catch (error) {
                 this.#_runner.onError(error, eventName);
             }
@@ -144,57 +148,54 @@ export class EventEmitter {
     /**
      * Emits an event, triggering all registered handlers for the given event name.
      *
+     * This method supports both **typed** and **untyped** emitters:
+     *
+     * - In a **typed emitter** (`EventEmitter<{ load: () => void; data: (value: number) => void }>`), 
+     *   the `eventName` parameter is restricted to the keys of the provided map, 
+     *   and the `args` are automatically typed according to the event's parameters.
+     *
+     * - In an **untyped emitter** (`EventEmitter` with default `{}`), `eventName` can be any string, 
+     *   and `args` are of type `any[]`.
+     *
+     * Global (`'*'`) handlers are triggered on every emit and receive the actual event name as the first argument.
+     *
      * Handlers are invoked in the following order for each `emit` call:
      * 1. The `beforeAll` handler (if set) runs before all `normal` handlers.
      * 2. All `normal` handlers (in the order they were registered).
      * 3. The `afterAll` handler (if set) runs after all `normal` handlers.
      *
-     * `beforeAll` and `afterAll` are special singleton handlers — only one of each
-     * may be set per event name. They are not removed automatically and are executed
-     * on every `emit` call.
+     * `beforeAll` and `afterAll` are singleton handlers — only one of each may be set per event name. 
+     * They are not removed automatically and are executed on every `emit` call.
      *
-     * `normal` handlers may be marked as `once`, in which case they will be removed
-     * after their first invocation.
+     * `normal` handlers may be marked as `once`, in which case they are removed after their first invocation.
      *
-     * Global (`'*'`) handlers are triggered on every emit and receive the actual event
-     * name as their first argument.
-     *
-     * @async
-     * @param eventName - The name of the event to emit. Must be a non-empty string.
-     * @param args - Arguments to pass to all applicable handler functions.
+     * @template E - The event name type; inferred automatically.
+     * @param eventName - The name of the event to emit, or `'*'` for global handlers. Must be a non-empty string.
+     * @param args - Arguments to pass to all applicable handlers. Automatically typed for typed emitters.
      *
      * @throws {TypeError} If the event name is not a string.
      * @throws {RangeError} If the event name is an empty string.
      *
      * @example
-     * ```ts
+     * // Untyped emitter
      * const emitter = new EventEmitter();
-     *
-     * emitter.on('data', (value) => console.log('Normal:', value));
-     * emitter.on('data', () => console.log('Before All'), { type: 'beforeAll' });
-     * emitter.on('data', () => console.log('After All'), { type: 'afterAll' });
-     *
-     * await emitter.emit('data', 123);
-     * // Output:
-     * // Before All
-     * // Normal: 123
-     * // After All
-     * ```
+     * emitter.on('*', (event, ...args) => console.log(`Global: ${event}`, args));
+     * await emitter.emit('load', true);
      *
      * @example
-     * ```ts
-     * emitter.on('*', (event, ...args) => {
-     *   console.log(`Global handler: ${event}`, args);
-     * });
-     *
-     * await emitter.emit('load', true);
-     * // Output:
-     * // Global handler: load [true]
-     * ```
+     * // Typed emitter
+     * type MyEvents = { load: (ok: boolean) => void; data: (value: number) => void };
+     * const typedEmitter = new EventEmitter<MyEvents>();
+     * typedEmitter.on('data', (value) => console.log('Data:', value));
+     * typedEmitter.on('*', (event, ...args) => console.log(`Global: ${event}`, args));
+     * await typedEmitter.emit('data', 42); // value typed as number
      *
      * @since v1.0.8
      */
-    async emit(eventName: string, ...args: any): Promise<void> {
+    async emit<E extends EventName<EventsMap>>(
+        eventName: [E] extends [never] ? string : E,
+        ...args: [E] extends [never] ? any[] : Parameters<EventsMap[E]>
+    ): Promise<void> {
         if (!valueIs.string(eventName)) { throw new TypeError(`The provided event name (${eventName}) is not a string.`) }
         if (eventName.length === 0) { throw new RangeError(`The provided event name (${eventName}) is an empty string.`) }
 
@@ -213,19 +214,58 @@ export class EventEmitter {
     /**
      * Adds a handler to an event.
      *
-     * @param eventName - The name of the event to add the handler to.
-     * @param handler - The handler function to add.
-     * @param options - (Optional) Additional configuration options for the handler. If not provided, defaults to `{ once: false, type: 'normal' }`.
-     * @param options.once - (Optional) If true, the handler is removed after being called once. Defaults to false.
-     * @param options.type - (Optional) The type of event handler to add. One of "before", "after", or "normal". Defaults to "normal".
+     * This method supports both **typed** and **untyped** event emitters:
      *
-     * @throws {TypeError} Throws if the event name is not a string or the handler is not a function.
-     * @throws {RangeError} Throws if the event name is an empty string or the type is not a valid event type.
+     * - In a **typed emitter** (`EventEmitter<{ load: () => void; data: (value: number) => void }>`), 
+     *   the `eventName` parameter is restricted to the keys of the provided map, 
+     *   and the `handler` function is automatically typed according to the event's parameters.
      *
-     * @returns The EventEmitter instance.
+     * - In an **untyped emitter** (`EventEmitter` with default `{}`), `eventName` can be any string.
+     *
+     * Special support for `'*'` allows registering a **global handler** that listens to all events:
+     * - The `handler` receives the actual event name as the first argument.
+     * - This works for both typed and untyped emitters.
+     *
+     * Handler types:
+     * - `"normal"`: Runs on every emit (default)
+     * - `"beforeAll"`: Runs before all normal handlers for the event
+     * - `"afterAll"`: Runs after all normal handlers for the event
+     *
+     * @template E - The event name type; inferred automatically.
+     * @param eventName - The name of the event to add the handler to, or `'*'` for a global handler.
+     * @param handler - The handler function for the event:
+     *   - For specific events, receives the event parameters.
+     *   - For `'*'`, receives the event name followed by its parameters.
+     * @param options - Optional configuration for the handler. Defaults to `{ once: false, type: 'normal' }`.
+     * @param options.once - If true, the handler is removed after being called once.
+     * @param options.type - The type of handler. One of `"normal"`, `"beforeAll"`, or `"afterAll"`.
+     *
+     * @throws {TypeError} If `eventName` is not a string, or `handler` is not a function.
+     * @throws {RangeError} If `eventName` is an empty string, or `options.type` is invalid.
+     *
+     * @returns The EventEmitter instance, allowing method chaining.
+     *
+     * @example
+     * // Untyped emitter
+     * const emitter = new EventEmitter();
+     * emitter.on('*', (event, ...args) => {
+     *   console.log(`Event "${event}" emitted with args:`, args);
+     * });
+     *
+     * @example
+     * // Typed emitter
+     * type MyEvents = { load: (ok: boolean) => void; data: (value: number) => void };
+     * const typedEmitter = new EventEmitter<MyEvents>();
+     * typedEmitter.on('data', (value) => console.log('Data:', value));
+     * typedEmitter.on('*', (event, ...args) => console.log(`Event "${event}"`, args));
+     *
      * @since v1.0.8
      */
-    on(eventName: string, handler: EventHandler, options?: AddHandlerOptions) {
+    on<E extends EventName<EventsMap> | '*'>(
+        eventName: E,
+        handler: E extends '*' ? GlobalEventHandler<EventsMap> : EventsMap[E],
+        options?: AddHandlerOptions
+    ): this {
         const configs: Required<AddHandlerOptions> = {
             once: false,
             type: 'normal',

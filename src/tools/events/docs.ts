@@ -43,4 +43,8 @@ export interface AddHandlerOptions {
     type?: 'beforeAll' | 'afterAll' | 'normal';
 }
 
-export type EventHandler = (...args: any) => any | Promise<any>;
+export type EventHandler = (...args: any[]) => any | Promise<any>;
+export type GlobalEventHandler<TMap> = (eventName: EventName<TMap>, ...args: any) => any | Promise<any>;
+
+export type EventName<TMap> = Extract<keyof TMap, string>;
+export type IsNever<T> = [T] extends [never] ? true : false;
