@@ -89,7 +89,7 @@ Defines the behavior when the total number of handlers exceeds the configured li
 - Or pass an `Error` instance to be thrown immediately
 
 ```ts
-emitter.maxHandlers = 5;
+emitter.maxTotalHandlers = 5;
 emitter.onMaxHandlers(new Error('Too many listeners'));
 ```
 

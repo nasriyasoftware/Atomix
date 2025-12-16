@@ -1,3 +1,5 @@
+import { Prettify } from "../../docs/docs";
+
 export interface EventData {
     name: string;
     handlersNumber: number;
@@ -48,3 +50,25 @@ export type GlobalEventHandler<TMap> = (eventName: EventName<TMap>, ...args: any
 
 export type EventName<TMap> = Extract<keyof TMap, string>;
 export type IsNever<T> = [T] extends [never] ? true : false;
+
+export type ProcessorEventsConfigs = {
+    /**
+     * The name of the emitted event.
+     */
+    emittedBy: string;
+
+    /**
+     * The internal data of the event.
+     */
+    data: EventData;
+
+    /**
+     * Whether the events are global or not.
+     * @default false 
+     */
+    isGlobal?: boolean;
+}
+
+export type ProcessorMetaData = Prettify<{
+    triggeredBy: ProcessorEventsConfigs['emittedBy'],
+} & Pick<ProcessorEventsConfigs, 'isGlobal'>>

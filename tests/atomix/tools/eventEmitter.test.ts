@@ -6,7 +6,7 @@ describe('EventEmitter', () => {
     beforeEach(() => {
         if (emitter) { emitter.dispose() }
         emitter = new EventEmitter();
-        emitter.maxHandlers = 100; // disable limit during most tests
+        emitter.maxTotalHandlers = 100; // disable limit during most tests
         jest.useFakeTimers();
     });
 
@@ -63,7 +63,7 @@ describe('EventEmitter', () => {
         emitter.on('*', wildcard);
         emitter.on('specific', () => { });
         await emitter.emit('specific', 'data');
-        expect(wildcard).toHaveBeenCalledWith('data');
+        expect(wildcard).toHaveBeenCalledWith('specific', 'data');
     });
 
     it('should correctly remove a specific handler', async () => {
@@ -86,13 +86,13 @@ describe('EventEmitter', () => {
 
     it('should call onMaxHandlers custom handler when limit exceeded', () => {
         const local = new EventEmitter();
-        local.maxHandlers = 1;
+        local.maxTotalHandlers = 1;
 
         const spy = jest.fn();
         local.onMaxHandlers(spy);
 
         local.on('foo', () => { });
-        local.on('foo', () => { }); // should exceed maxHandlers limit
+        local.on('foo', () => { }); // should exceed maxTotalHandlers limit
 
         // At this point, debounce delays the call, so spy hasn't been called yet
         expect(spy).not.toHaveBeenCalled();
@@ -106,7 +106,7 @@ describe('EventEmitter', () => {
 
     it('should throw an error if onMaxHandlers is set to Error instance', () => {
         const local = new EventEmitter();
-        local.maxHandlers = 1;
+        local.maxTotalHandlers = 1;
 
         // Custom max handler that throws an error when invoked
         const errMsg = 'Too many handlers';

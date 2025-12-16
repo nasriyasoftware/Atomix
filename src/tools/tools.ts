@@ -121,7 +121,7 @@ class Tools {
     * @example
     * ```ts
     * // Custom behavior when handler count exceeds limit
-    * emitter.maxHandlers = 2;
+    * emitter.maxTotalHandlers = 2;
     * emitter.onMaxHandlers((eventName) => {
     *   throw new Error(`Handler overflow on ${eventName}`);
     * });

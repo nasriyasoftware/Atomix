@@ -1,52 +1,7 @@
 import valueIs from '../../valueIs';
 import commonUtils from '../../domains/utils/utils';
 import recordsUtils from '../../domains/data-types/record/records-utils';
-import { EventData, EventHandler, AddHandlerOptions, EventName, GlobalEventHandler } from './docs';
-
-/**
- * A flexible and lightweight event emitter class that supports advanced features like:
- * - `beforeAll` and `afterAll` handler types
- * - One-time (`once`) handlers
- * - Handler limits with overflow detection
- * - Custom max-handler overflow behavior
- *
- * This implementation allows both standard event handlers and lifecycle-style hooks around them.
- *
- * @example
- * ```ts
- * const emitter = new atomix.tools.EventEmitter();
- *
- * // Regular handler (called in the order added)
- * emitter.on('data', (value) => console.log('Received:', value));
- *
- * // One-time handler
- * emitter.on('data', (value) => console.log('Once:', value), { once: true });
- *
- * // Setup logic before all regular handlers
- * emitter.on('data', () => console.log('Before All'), { type: 'beforeAll' });
- *
- * // Cleanup logic after all regular handlers
- * emitter.on('data', () => console.log('After All'), { type: 'afterAll' });
- *
- * // Emit the event
- * await emitter.emit('data', 42);
- * ```
- *
- * @example
- * ```ts
- * // Custom behavior when handler count exceeds limit
- * emitter.maxHandlers = 2;
- * emitter.onMaxHandlers((eventName) => {
- *   throw new Error(`Handler overflow on ${eventName}`);
- * });
- *
- * emitter.on('load', () => {});
- * emitter.on('load', () => {});
- * emitter.on('load', () => {}); // throws
- * ```
- *
- * @since v1.0.8
- */
+import type { EventData, EventHandler, AddHandlerOptions, EventName, GlobalEventHandler, ProcessorMetaData, ProcessorEventsConfigs } from './docs';
 
 /**
  * A flexible and lightweight event emitter class with full TypeScript support.
@@ -168,41 +123,63 @@ export class EventEmitter<EventsMap extends Record<string, EventHandler> = {}> {
         },
     }
 
-    readonly #_runner = {
-        processEvents: async (events: EventData, ...args: any) => {
-            if (events.handlers.before) {
-                await this.#_runner.runHandler(events.handlers.before, events.name, ...args);
+    readonly #_processor = {
+        process: async (events: ProcessorEventsConfigs, ...args: any[]) => {
+            const { emittedBy, data, isGlobal } = events;
+
+            if (data.handlers.before) {
+                await this.#_processor.processHandler(
+                    data.handlers.before,
+                    { triggeredBy: emittedBy, isGlobal },
+                    ...args
+                );
             }
 
             // Handle normal events
-            for (let i = 0; i < events.handlers.normal.index; i++) {
-                const handler = (events.handlers.normal.handlers.get(i) || events.handlers.normal.onceHandlers.get(i))!;
+            for (let i = 0; i < data.handlers.normal.index; i++) {
+                const handler = (data.handlers.normal.handlers.get(i) || data.handlers.normal.onceHandlers.get(i))!;
                 if (!handler) { continue }
-                await this.#_runner.runHandler(handler, events.name, ...args);
+                await this.#_processor.processHandler(
+                    handler,
+                    { triggeredBy: emittedBy, isGlobal },
+                    ...args
+                )
             }
 
-            if (events.handlers.after) {
-                await this.#_runner.runHandler(events.handlers.after, events.name, ...args);
+            if (data.handlers.after) {
+                await this.#_processor.processHandler(
+                    data.handlers.after,
+                    { triggeredBy: emittedBy, isGlobal },
+                    ...args
+                );
             }
 
-            const onceHandlersCount = events.handlers.normal.onceHandlers.size;
-            this.#_helpers.updateEventHandlersNum(events, -onceHandlersCount);
-            events.handlers.normal.onceHandlers.clear();
+            const onceHandlersCount = data.handlers.normal.onceHandlers.size;
+            this.#_helpers.updateEventHandlersNum(data, -onceHandlersCount);
+            data.handlers.normal.onceHandlers.clear();
         },
-        runHandler: async (handler: EventHandler, eventName: string, ...args: any) => {
+        processHandler: async (
+            handler: EventHandler,
+            meta: ProcessorMetaData,
+            ...args: any[]
+        ) => {
+            const triggeredBy = meta.triggeredBy;
+            const isGlobal = meta.isGlobal;
+
             try {
-                if (eventName === '*') {
-                    await handler(eventName, ...args);
+                if (isGlobal) {
+                    await handler(triggeredBy, ...args);
                 } else {
                     await handler(...args);
                 }
             } catch (error) {
-                this.#_runner.onError(error, eventName);
+                this.#_processor.onError(error, meta);
             }
         },
-        onError: (err: unknown, eventName: string) => {
-            console.error(`[HandlerError] (${eventName})`, err);
-        },
+        onError(error: unknown, meta: ProcessorMetaData) {
+            const errMsg = `[Atomix][EventEmitter:UserHandlerError]: An error occurred while processing event '${meta.triggeredBy}'.`;
+            console.error(errMsg, error);
+        }
     }
 
     /**
@@ -263,11 +240,11 @@ export class EventEmitter<EventsMap extends Record<string, EventHandler> = {}> {
         const namedEvents = eventName === '*' ? undefined : this.#_helpers.getEvents(eventName);
 
         if (namedEvents) {
-            await this.#_runner.processEvents(namedEvents, ...args);
+            await this.#_processor.process({ emittedBy: eventName, data: namedEvents }, ...args);
         }
 
         if (globalEvents) {
-            await this.#_runner.processEvents(globalEvents, ...args);
+            await this.#_processor.process({ emittedBy: eventName, data: globalEvents, isGlobal: true }, ...args);
         }
     }
 
@@ -322,7 +299,7 @@ export class EventEmitter<EventsMap extends Record<string, EventHandler> = {}> {
      * @since v1.0.8
      */
     on<E extends EventName<EventsMap> | '*'>(
-        eventName: E,
+        eventName: [Exclude<E, '*'>] extends [never] ? string : E,
         handler: E extends '*' ? GlobalEventHandler<EventsMap> : EventsMap[E],
         options?: AddHandlerOptions
     ): this {
@@ -454,14 +431,14 @@ export class EventEmitter<EventsMap extends Record<string, EventHandler> = {}> {
      * @since v1.0.24
      */
     set maxTotalHandlers(value: number) {
-        if (!valueIs.number(value)) { throw new TypeError('maxHandlers must be a number') }
+        if (!valueIs.number(value)) { throw new TypeError('maxTotalHandlers must be a number') }
         if (value === Infinity) {
             this.#_stats.handlers.max = value;
             return;
         }
 
-        if (value <= 0) { throw new RangeError('maxHandlers must be greater than 0') }
-        if (!valueIs.integer(value)) { throw new TypeError('maxHandlers must be an integer') }
+        if (value <= 0) { throw new RangeError('maxTotalHandlers must be greater than 0') }
+        if (!valueIs.integer(value)) { throw new TypeError('maxTotalHandlers must be an integer') }
         this.#_stats.handlers.max = value;
     }
 
