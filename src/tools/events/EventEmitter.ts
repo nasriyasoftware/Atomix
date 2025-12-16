@@ -363,9 +363,9 @@ export class EventEmitter<EventsMap extends Record<string, EventHandler> = {}> {
      * The value is a positive integer or Infinity. If set to Infinity, there is no limit to the number of handlers.
      * 
      * @returns {number} The maximum number of handlers. A positive integer or Infinity.
-     * @since v1.0.8
+     * @since v1.0.24
      */
-    get maxHandlers(): number { return this.#_stats.handlers.max; }
+    get maxTotalHandlers(): number { return this.#_stats.handlers.max }
 
     /**
      * Sets the maximum number of event handlers allowed for this EventEmitter instance.
@@ -375,9 +375,9 @@ export class EventEmitter<EventsMap extends Record<string, EventHandler> = {}> {
      * @param {number} value The maximum number of handlers. Must be a positive integer or Infinity.
      * @throws {TypeError} If the provided value is not a number or not an integer.
      * @throws {RangeError} If the provided value is not greater than 0.
-     * @since v1.0.8
+     * @since v1.0.24
      */
-    set maxHandlers(value: number) {
+    set maxTotalHandlers(value: number) {
         if (!valueIs.number(value)) { throw new TypeError('maxHandlers must be a number') }
         if (value === Infinity) {
             this.#_stats.handlers.max = value;
@@ -387,6 +387,32 @@ export class EventEmitter<EventsMap extends Record<string, EventHandler> = {}> {
         if (value <= 0) { throw new RangeError('maxHandlers must be greater than 0') }
         if (!valueIs.integer(value)) { throw new TypeError('maxHandlers must be an integer') }
         this.#_stats.handlers.max = value;
+    }
+
+    /**
+     * Retrieves the maximum number of event handlers allowed for this EventEmitter instance.
+     * 
+     * The value is a positive integer or Infinity. If set to Infinity, there is no limit to the number of handlers.
+     * 
+     * @returns {number} The maximum number of handlers. A positive integer or Infinity.
+     * @deprecated Use {@link maxTotalHandlers} getter/setter instead.
+     * @since v1.0.8
+     */
+    get maxHandlers(): number { return this.maxTotalHandlers }
+
+    /**
+     * Sets the maximum number of event handlers allowed for this EventEmitter instance.
+     * 
+     * The value must be a positive integer or Infinity. If set to Infinity, there is no limit to the number of handlers.
+     * 
+     * @param {number} value The maximum number of handlers. Must be a positive integer or Infinity.
+     * @throws {TypeError} If the provided value is not a number or not an integer.
+     * @throws {RangeError} If the provided value is not greater than 0.
+     * @deprecated Use {@link maxTotalHandlers} getter/setter instead.
+     * @since v1.0.8
+     */
+    set maxHandlers(value: number) {
+        this.maxTotalHandlers = value
     }
 
     /**
