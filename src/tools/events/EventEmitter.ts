@@ -251,28 +251,35 @@ export class EventEmitter<EventsMap extends Record<string, EventHandler> = {}> {
     /**
      * Adds a handler to an event.
      *
-     * This method supports both **typed** and **untyped** event emitters:
+     * This method supports both **typed** and **untyped** event emitters.
      *
-     * - In a **typed emitter** (`EventEmitter<{ load: () => void; data: (value: number) => void }>`), 
-     *   the `eventName` parameter is restricted to the keys of the provided map, 
-     *   and the `handler` function is automatically typed according to the event's parameters.
+     * ### Typed vs untyped emitters
+     * - In a **typed emitter** (`EventEmitter<{ load: () => void; data: (value: number) => void }>`),
+     *   `eventName` is restricted to the keys of the provided map, and `handler` is fully type-safe.
+     * - In an **untyped emitter** (`EventEmitter` with the default `{}`), `eventName` may be any string.
      *
-     * - In an **untyped emitter** (`EventEmitter` with default `{}`), `eventName` can be any string.
+     * ### Global handlers (`'*'`)
+     * Passing `'*'` as the event name registers a **global handler** that listens to all events.
+     * The handler receives the actual event name as the first argument, followed by the event arguments.
      *
-     * Special support for `'*'` allows registering a **global handler** that listens to all events:
-     * - The `handler` receives the actual event name as the first argument.
-     * - This works for both typed and untyped emitters.
-     *
-     * Handler types:
+     * ### Handler types
      * - `"normal"`: Runs on every emit (default)
      * - `"beforeAll"`: Runs before all normal handlers for the event
      * - `"afterAll"`: Runs after all normal handlers for the event
      *
-     * @template E - The event name type; inferred automatically.
+     * ### Intentional no-op handlers
+     * This method explicitly supports passing `atomix.utils.noop` as the handler.
+     *
+     * Doing so **preserves the semantic intent of attaching a handler** without:
+     * - allocating a new function,
+     * - storing it in memory,
+     * - or creating misleading empty implementations.
+     *
+     * No-op handlers are ignored internally while keeping the event registration intentional and explicit.
+     *
+     * @template E - The event name type (inferred automatically).
      * @param eventName - The name of the event to add the handler to, or `'*'` for a global handler.
-     * @param handler - The handler function for the event:
-     *   - For specific events, receives the event parameters.
-     *   - For `'*'`, receives the event name followed by its parameters.
+     * @param handler - The handler function for the event, or `atomix.utils.noop` to intentionally register a no-op.
      * @param options - Optional configuration for the handler. Defaults to `{ once: false, type: 'normal' }`.
      * @param options.once - If true, the handler is removed after being called once.
      * @param options.type - The type of handler. One of `"normal"`, `"beforeAll"`, or `"afterAll"`.
@@ -283,18 +290,14 @@ export class EventEmitter<EventsMap extends Record<string, EventHandler> = {}> {
      * @returns The EventEmitter instance, allowing method chaining.
      *
      * @example
-     * // Untyped emitter
-     * const emitter = new EventEmitter();
-     * emitter.on('*', (event, ...args) => {
-     *   console.log(`Event "${event}" emitted with args:`, args);
-     * });
+     * // Intentional placeholder handler
+     * emitter.on('ready', atomix.utils.noop);
      *
      * @example
      * // Typed emitter
-     * type MyEvents = { load: (ok: boolean) => void; data: (value: number) => void };
-     * const typedEmitter = new EventEmitter<MyEvents>();
-     * typedEmitter.on('data', (value) => console.log('Data:', value));
-     * typedEmitter.on('*', (event, ...args) => console.log(`Event "${event}"`, args));
+     * type Events = { ready: () => void };
+     * const typedEmitter = new EventEmitter<Events>();
+     * typedEmitter.on('ready', atomix.utils.noop);
      *
      * @since v1.0.8
      */
@@ -311,6 +314,8 @@ export class EventEmitter<EventsMap extends Record<string, EventHandler> = {}> {
         if (!valueIs.string(eventName)) { throw new TypeError(`The provided event name (${eventName}) is not a string.`) }
         if (eventName.length === 0) { throw new RangeError(`The provided event name (${eventName}) is an empty string.`) }
         if (typeof handler !== 'function') { throw new TypeError(`The provided handler (${handler}) is not a function.`) }
+        if (handler === commonUtils.noop) { return this }
+
         if (options !== undefined) {
             if (!valueIs.record(options)) { throw new TypeError(`The provided options (${options}) is not a record.`) }
 
