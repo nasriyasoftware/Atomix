@@ -1,5 +1,4 @@
 import recordsUtils from "../../domains/data-types/record/records-utils";
-import commonUtils from "../../domains/utils/utils";
 import valueIs from "../../valueIs";
 import TasksQueue from "./TasksQueue";
 import { AdaptiveTaskQueueOptions, AddTasksBaseOptions, BaseQueueTask } from "./docs";
@@ -59,7 +58,9 @@ import { AdaptiveTaskQueueOptions, AddTasksBaseOptions, BaseQueueTask } from "./
 export class AdaptiveTaskQueue extends TasksQueue {
     #_addedSinceLast = 0;
     readonly #_rateWindow: number[] = [];
-    readonly #_adjustRate;
+    #_lastAdjustmentAt = 0;
+    #_adjustmentTimer: ReturnType<typeof setTimeout> | null = null;
+    readonly #_adjustRate: () => void;
     readonly #_eventHandlers = {
         userHandlers: { onConcurrencyUpdate: null as ((rps: number) => void) | null },
         internalHandlers: {
@@ -137,7 +138,29 @@ export class AdaptiveTaskQueue extends TasksQueue {
             }
         }
 
-        this.#_adjustRate = commonUtils.throttle(this.#_helpers.adjustConcurrency, this.#_configs.recalcDebounce);
+        this.#_adjustRate = () => {
+            const elapsed = Date.now() - this.#_lastAdjustmentAt;
+            if (elapsed >= this.#_configs.recalcDebounce) {
+                if (this.#_adjustmentTimer) {
+                    clearTimeout(this.#_adjustmentTimer);
+                    this.#_adjustmentTimer = null;
+                }
+
+                this.#_lastAdjustmentAt = Date.now();
+                this.#_helpers.adjustConcurrency();
+                return;
+            }
+
+            if (this.#_adjustmentTimer) { return }
+
+            this.#_adjustmentTimer = setTimeout(() => {
+                this.#_adjustmentTimer = null;
+                this.#_lastAdjustmentAt = Date.now();
+                this.#_helpers.adjustConcurrency();
+            }, this.#_configs.recalcDebounce - elapsed);
+
+            this.#_adjustmentTimer.unref();
+        };
         super.concurrencyLimit = this.#_configs.concurrencyLimit;
     }
 

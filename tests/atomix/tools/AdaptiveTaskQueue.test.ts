@@ -36,6 +36,7 @@ describe('AdaptiveTaskQueue', () => {
         }
 
         await queue.untilComplete();
+        await new Promise(resolve => setTimeout(resolve, 150));
         // Since RPS > 1000, we expect concurrency to have gone above 100
         expect(queue.concurrencyLimit).toBeGreaterThanOrEqual(200);
     });
@@ -79,11 +80,12 @@ describe('AdaptiveTaskQueue', () => {
         }
 
         await queue.untilComplete();
+        await new Promise(resolve => setTimeout(resolve, 150));
 
         expect(queue.concurrencyLimit).toBeGreaterThanOrEqual(200);
     });
 
-    it('should not recalculate concurrency if no tasks are added in the debounce window', async () => {
+    it('should not emit duplicate updates when concurrency stays unchanged', async () => {
         const queue = new AdaptiveTaskQueue({ autoRun: true });
 
         const updates: number[] = [];
@@ -99,6 +101,7 @@ describe('AdaptiveTaskQueue', () => {
 
         // Re-run queue with no new additions
         await queue.untilComplete();
+        await new Promise(resolve => setTimeout(resolve, 250));
 
         // Shouldn't trigger a second adjustment
         expect(updates.length).toBe(1);

@@ -2,11 +2,5 @@
     "esmDir": "auto",
     "cjsDir": "auto",
     "verbose": false,
-    "copyFiles": {
-        "from": "./src",
-        "exclude": [
-            ".js"
-        ]
-    },
     "addExtensions": true
 }

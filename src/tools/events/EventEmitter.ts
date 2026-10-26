@@ -67,6 +67,30 @@ export class EventEmitter<EventsMap extends Record<string, EventHandler> = {}> {
     readonly #_stats = {
         handlers: { number: 0, max: 10 },
     }
+    readonly #_shutdown = {
+        listenerRegistered: false,
+        listener: () => this.#_shutdown.dispose(),
+        register: () => {
+            if (typeof process === 'undefined' || this.#_shutdown.listenerRegistered) { return }
+
+            process.once('exit', this.#_shutdown.listener);
+            this.#_shutdown.listenerRegistered = true;
+        },
+        remove: () => {
+            if (typeof process === 'undefined' || !this.#_shutdown.listenerRegistered) { return }
+
+            process.removeListener('exit', this.#_shutdown.listener);
+            this.#_shutdown.listenerRegistered = false;
+        },
+        dispose: () => {
+            const { builtInHandler, customHandler } = this.#_helpers.onMaxHandlers;
+            (builtInHandler as any)?.cancel();
+            if (typeof customHandler === 'function') {
+                (customHandler as any)?.cancel();
+            }
+            this.#_shutdown.remove();
+        },
+    }
 
     readonly #_helpers = {
         getEvents: (eventName: string): EventData => {
@@ -93,8 +117,12 @@ export class EventEmitter<EventsMap extends Record<string, EventHandler> = {}> {
         },
         onMaxHandlers: {
             builtInHandler: commonUtils.debounceSync(() => {
-                if (this.#_stats.handlers.number > this.#_stats.handlers.max) {
-                    console.warn(`[WARN] The maximum number of handlers has been reached (${this.#_stats.handlers.max}). Current number of handlers: ${this.#_stats.handlers.number}.`);
+                try {
+                    if (this.#_stats.handlers.number > this.#_stats.handlers.max) {
+                        console.warn(`[WARN] The maximum number of handlers has been reached (${this.#_stats.handlers.max}). Current number of handlers: ${this.#_stats.handlers.number}.`);
+                    }
+                } finally {
+                    this.#_shutdown.remove();
                 }
             }, 1000),
             customHandler: null as null | ((eventName: string) => any) | Error,
@@ -113,6 +141,7 @@ export class EventEmitter<EventsMap extends Record<string, EventHandler> = {}> {
 
                 const builtInHandler = this.#_helpers.onMaxHandlers.builtInHandler;
                 const toInvoke = customHandler !== null ? customHandler : builtInHandler;
+                this.#_shutdown.register();
                 toInvoke(eventName);
             }
         },
@@ -386,8 +415,12 @@ export class EventEmitter<EventsMap extends Record<string, EventHandler> = {}> {
 
         if (isFunction) {
             this.#_helpers.onMaxHandlers.customHandler = commonUtils.debounceSync((eventName: string) => {
-                if (this.#_stats.handlers.number <= this.#_stats.handlers.max) { return }
-                handler(eventName);
+                try {
+                    if (this.#_stats.handlers.number <= this.#_stats.handlers.max) { return }
+                    handler(eventName);
+                } finally {
+                    this.#_shutdown.remove();
+                }
             }, 100, {
                 onError: (err) => { throw err }
             });
@@ -397,22 +430,18 @@ export class EventEmitter<EventsMap extends Record<string, EventHandler> = {}> {
     }
 
     /**
-     * Cleans up any internal resources used by this instance.
+     * Manually cancels pending debounced max-handler callbacks.
      * 
-     * Specifically, cancels any pending debounced handlers (such as
-     * warnings about maximum handlers) to prevent timers from
-     * keeping the process alive or causing side effects after disposal.
-     * 
-     * This method should be called when the instance is no longer needed,
-     * such as during test teardown or object cleanup.
-     * 
+     * Cleanup is handled automatically when the Node.js process exits.
+     * This method remains available for compatibility and for callers that
+     * need to cancel pending callbacks before process exit.
+     *
+     * @deprecated Cleanup is automatic on process exit. Call only when early
+     * cancellation of pending callbacks is needed.
      * @since v1.0.15
      */
     dispose() {
-        const { builtInHandler, customHandler } = this.#_helpers.onMaxHandlers;
-        (builtInHandler as any)?.cancel();
-        if (typeof customHandler !== 'function') { return }
-        (customHandler as any)?.cancel();
+        this.#_shutdown.dispose();
     }
 
     /**

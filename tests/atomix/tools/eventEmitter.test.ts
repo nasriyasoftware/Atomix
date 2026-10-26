@@ -104,6 +104,26 @@ describe('EventEmitter', () => {
         expect(spy).toHaveBeenCalledWith('foo');
     });
 
+    it('should cancel pending max-handler calls when the process exits', () => {
+        const previousExitListeners = process.listeners('exit');
+        const local = new EventEmitter();
+        local.maxTotalHandlers = 1;
+
+        const spy = jest.fn();
+        local.onMaxHandlers(spy);
+        local.on('foo', () => { });
+        local.on('foo', () => { });
+
+        const exitListener = process.listeners('exit').find(listener => !previousExitListeners.includes(listener));
+
+        expect(exitListener).toBeDefined();
+        exitListener?.(0);
+        jest.advanceTimersByTime(1100);
+
+        expect(spy).not.toHaveBeenCalled();
+        local.dispose();
+    });
+
     it('should throw an error if onMaxHandlers is set to Error instance', () => {
         const local = new EventEmitter();
         local.maxTotalHandlers = 1;

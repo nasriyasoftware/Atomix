@@ -25,7 +25,7 @@ const queue = new AdaptiveTaskQueue({
 | ------------------------------ | ------------------------------------------------------------------------------------------------------ |
 | **Dynamic concurrency**        | Automatically increases/decreases concurrencyLimit based on task addition rate.                        |
 | **RPS tracking**               | Tracks requests per second over a sliding time window (`windowDurationMs`).                            |
-| **Recalculation throttling**   | Uses a throttled function (every `recalcDebounce` ms) to avoid too-frequent concurrency changes.       |
+| **Recalculation throttling**   | Recalculates immediately when eligible and schedules a trailing recalculation after a burst, with at least `recalcDebounce` ms between updates. |
 | **Event callback**             | Supports `.onConcurrencyUpdate(cb: (newLimit: number) => void)` callback for concurrency changes.      |
 | **Immutable concurrencyLimit** | The concurrency limit cannot be set manually; it is controlled internally. Setting it throws an error. |
 
