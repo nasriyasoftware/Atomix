@@ -67,6 +67,7 @@ export class EventEmitter<EventsMap extends Record<string, EventHandler> = {}> {
     readonly #_stats = {
         handlers: { number: 0, max: 10 },
     }
+
     readonly #_shutdown = {
         listenerRegistered: false,
         listener: () => this.#_shutdown.dispose(),
@@ -116,18 +117,31 @@ export class EventEmitter<EventsMap extends Record<string, EventHandler> = {}> {
             return events;
         },
         onMaxHandlers: {
-            builtInHandler: commonUtils.debounceSync(() => {
+            builtInHandler: commonUtils.debounceSync((eventName: string) => {
                 try {
                     if (this.#_stats.handlers.number > this.#_stats.handlers.max) {
-                        console.warn(`[WARN] The maximum number of handlers has been reached (${this.#_stats.handlers.max}). Current number of handlers: ${this.#_stats.handlers.number}.`);
+                        const msg = [
+                            `[WARN] Unable to register handler for event: ${eventName}.`,
+                            `  The maximum number of handlers has been reached (${this.#_stats.handlers.max}).`,
+                            `  Current number of handlers: ${this.#_stats.handlers.number}.`
+                        ].join('\n');
+
+                        console.warn(msg);
                     }
                 } finally {
                     this.#_shutdown.remove();
                 }
             }, 1000),
+
             customHandler: null as null | ((eventName: string) => any) | Error,
+
             check: (eventName: string) => {
-                const customHandler = this.#_helpers.onMaxHandlers.customHandler;
+                if (this.#_stats.handlers.number <= this.#_stats.handlers.max) {
+                    return;
+                }
+
+                const { customHandler, builtInHandler } = this.#_helpers.onMaxHandlers;
+
                 if (customHandler instanceof Error) {
                     if (this.#_stats.handlers.number > this.#_stats.handlers.max) {
                         const newErr = new Error();
@@ -139,8 +153,7 @@ export class EventEmitter<EventsMap extends Record<string, EventHandler> = {}> {
                     return;
                 };
 
-                const builtInHandler = this.#_helpers.onMaxHandlers.builtInHandler;
-                const toInvoke = customHandler !== null ? customHandler : builtInHandler;
+                const toInvoke = customHandler ?? builtInHandler;
                 this.#_shutdown.register();
                 toInvoke(eventName);
             }
