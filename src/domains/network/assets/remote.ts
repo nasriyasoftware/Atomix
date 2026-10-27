@@ -1,6 +1,6 @@
 import stringsGuard from "../../data-types/string/strings-guard";
 
-class RemoteNetworks {
+export class RemoteNetworks {
     /**
      * Retrieves the public IP address of the server.
      *

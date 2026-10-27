@@ -1,4 +1,4 @@
-class RegexGuard {
+export class RegexGuard {
     /**
      * Checks if the given pattern is a glob-like pattern, meaning it contains at least one of the
      * characters `*` or `?`.

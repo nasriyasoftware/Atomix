@@ -1,4 +1,4 @@
-class StringGuard {
+export class StringGuard {
     /**
      * Checks if the provided value is a string.
      * 

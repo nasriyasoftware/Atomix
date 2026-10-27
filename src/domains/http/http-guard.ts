@@ -1,7 +1,7 @@
 import stringsUtils from "../data-types/string/strings-utils";
 import mimes, { FileExtension, Mime } from "./mimes/mimes";
 
-class HTTPGuard {
+export class HTTPGuard {
     /**
      * Checks if the provided value is a valid HTML string.
      * 

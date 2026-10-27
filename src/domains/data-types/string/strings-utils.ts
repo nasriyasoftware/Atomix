@@ -3,7 +3,7 @@ import numbersGuard from "../number/numbers-guard";
 import recordsUtils from "../record/records-utils";
 import commonUtils from "../../utils/utils";
 
-class StringsUtils {
+export class StringsUtils {
     /**
      * Returns the stringsGuard instance.
      * @since v1.0.0

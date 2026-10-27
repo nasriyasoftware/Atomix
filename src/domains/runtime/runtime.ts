@@ -1,6 +1,6 @@
 import fs from 'fs';
 
-class Runtime {
+export class Runtime {
     /**
      * Gets the name of the project.
      * @returns The name of the project.

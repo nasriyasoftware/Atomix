@@ -3,7 +3,7 @@ import objectsGuard from "./objects-guard";
 import { DeepReadonly, Objects } from "../../../docs/docs";
 import { JSONObject, Stringified } from "./docs";
 
-class ObjectUtils {
+export class ObjectUtils {
     readonly #_helpers = {
         smartClone: <T>(input: T, seen = new WeakMap()): T => {
             if (input === null || typeof input !== 'object') return input;

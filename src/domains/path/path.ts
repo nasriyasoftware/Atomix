@@ -3,7 +3,7 @@ import runtime from '../runtime/runtime';
 import mimes from '../http/mimes/mimes';
 import valueIs from '../../valueIs';
 
-class PathUtils {
+export class PathUtils {
     /**
      * Normalizes the given path by resolving it to an absolute path and converting 
      * it to lowercase if the current platform is Windows.

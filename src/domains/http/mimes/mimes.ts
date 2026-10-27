@@ -1,6 +1,6 @@
 import mimeData from "./mime-data";
 
-class Mimes {
+export class Mimes {
     readonly #_extensions: FileExtension[];
     readonly #_mimes: Mime[];
     readonly #_cache = {

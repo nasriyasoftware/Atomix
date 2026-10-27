@@ -4,7 +4,7 @@ import networks from '../network-utils';
 import numbersGuard from '../../data-types/number/numbers-guard';
 import networkInspector from './inspect';
 
-class LocalNetwork {
+export class LocalNetwork {
     /**
      * Get the local IP address of the server.
      *

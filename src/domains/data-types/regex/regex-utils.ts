@@ -1,6 +1,6 @@
 import regexGuard from "./regex-guard";
 
-class RegexUtils {
+export class RegexUtils {
     /**
      * Returns the regexGuard instance.
      * @since v1.0.0

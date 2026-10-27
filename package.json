@@ -33,21 +33,16 @@
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
   "types": "./dist/@types/index.d.ts",
-  "typesVersions": {
-    "*": {
-      "tools": ["dist/@types/tools/index.d.ts"]
-    }
-  },  
   "exports": {
     ".": {
+      "types": "./dist/@types/index.d.ts",
       "import": "./dist/esm/index.js",
-      "require": "./dist/cjs/index.js",
-      "types": "./dist/@types/index.d.ts"
+      "require": "./dist/cjs/index.js"
     },
     "./tools": {
+      "types": "./dist/@types/tools/index.d.ts",
       "import": "./dist/esm/tools/index.js",
-      "require": "./dist/cjs/tools/index.js",
-      "types": "./dist/@types/tools/index.d.ts"
+      "require": "./dist/cjs/tools/index.js"
     }
   },
   "files": [
@@ -84,9 +79,9 @@
   "devDependencies": {
     "@nasriya/postbuild": "^1.1.5",
     "@types/jest": "^30.0.0",
-    "@types/node": "^24.0.4",
-    "jest": "^30.0.3",
-    "ts-jest": "^29.4.0"
+    "@types/node": "^26.6.5",
+    "jest": "^30.5.2",
+    "ts-jest": "^29.4.15"
   },
   "dependencies": {
     "@nasriya/uuidx": "^1.0.3"

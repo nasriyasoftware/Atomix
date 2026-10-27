@@ -6,7 +6,7 @@ import bodyCodec from "./body-codec";
 import { InputSanitizationOptions, SanitizedResult, SanitizationViolation, InputSanitizationConfigs, FieldRuleMap } from "./docs";
 
 
-class HTTPUtils {
+export class HTTPUtils {
     readonly #_helpers = {
         inputValidators: {
             sanitizeOptions: (options?: InputSanitizationOptions): InputSanitizationConfigs => {

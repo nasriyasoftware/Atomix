@@ -7,7 +7,7 @@ import networkInspector from "./assets/inspect";
 
 import numbersGuard from "../data-types/number/numbers-guard";
 
-class NetworkUtils {
+export class NetworkUtils {
     /**
      * Provides utilities for accessing and managing local network information
      * such as local IPs, hostnames, and MAC addresses.

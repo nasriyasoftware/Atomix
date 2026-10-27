@@ -11,7 +11,7 @@ import arraysUtils from "../../data-types/array/arrays-utils";
  * 
  * @since v1.0.0
  */
-class NetworkDNS {
+export class NetworkDNS {
     /**
      * Resolves DNS records for the given hostname and record type.
      *

@@ -1,6 +1,6 @@
 import valueIs from "../../valueIs";
 
-class BodyCodec {
+export class BodyCodec {
     readonly #_helpers = {
         serialize: <T extends Serializable>(value: T) => {
             if (value === null) return { type: 'null' };

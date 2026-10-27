@@ -5,7 +5,7 @@ import runtime from '../../runtime/runtime';
 
 const execAsync = promisify(exec);
 
-class NetworkInspector {
+export class NetworkInspector {
     readonly #_helpers = {
         traceroute: {
             parsers: {

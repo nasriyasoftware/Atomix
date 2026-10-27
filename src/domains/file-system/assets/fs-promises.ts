@@ -4,7 +4,7 @@ import stringsUtils from "../../data-types/string/strings-utils";
 import { AccessOptions } from "../docs";
 import { getAccessOptions } from "./helpers";
 
-class FileSystemPromisesUtils {
+export class FileSystemPromisesUtils {
     /**
      * Asynchronously loads a JSON file from the given path, returning its contents as a Record or Array.
      * 

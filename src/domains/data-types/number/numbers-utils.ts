@@ -1,6 +1,6 @@
 import numbersGuard from "./numbers-guard";
 
-class NumbersUtils {
+export class NumbersUtils {
     /**
      * Returns the numbersGuard instance.
      * @since v1.0.0

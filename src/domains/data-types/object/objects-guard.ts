@@ -1,6 +1,6 @@
 import recordsGuard from "../record/records-guard";
 
-class ObjectsGuard {
+export class ObjectsGuard {
     /**
      * Checks if the provided value is an object.
      * 

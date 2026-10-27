@@ -3,7 +3,7 @@ import objectUtils from "../object/objects-utils";
 import { DeepReadonly } from "../../../docs/docs";
 import { JSONObject, Stringified } from "../object/docs";
 
-class RecordsUtils {
+export class RecordsUtils {
     /**
      * Returns the recordsGuard instance.
      * @since v1.0.0

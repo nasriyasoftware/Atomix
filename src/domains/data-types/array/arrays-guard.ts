@@ -1,6 +1,6 @@
 import { NonEmptyArray } from "./docs";
 
-class ArraysGuard {
+export class ArraysGuard {
 
     constructor() {
         this.isArrayOfNumbers = this.isArrayOf((value: unknown): value is number => typeof value === 'number');

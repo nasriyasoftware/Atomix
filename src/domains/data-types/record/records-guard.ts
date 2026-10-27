@@ -1,4 +1,4 @@
-class RecordsGuard {
+export class RecordsGuard {
     /**
      * Checks if the provided value is a Record.
      * 

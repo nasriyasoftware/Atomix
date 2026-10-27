@@ -13,20 +13,20 @@ import tools from './tools/tools';
 import commonUtils from './domains/utils/utils';
 import valueIs from './valueIs';
 
-class Atomix {
+export class Atomix {
     /**
      * Type guard functions for validating and narrowing values at runtime.
      * Useful for safely checking primitives, instances, and complex structures.
      * @since v1.0.0
      */
     readonly valueIs = valueIs;
-
+    
     /**
      * Utilities for working with core JavaScript data types, organized by type.
      * Includes helpers for strings, numbers, arrays, objects, records, and regex.
      * @since v1.0.0
      */
-    readonly dataTypes = objectsUtils.freeze({
+    readonly dataTypes = Object.freeze({
         string: stringsUtils,
         number: numbersUtils,
         object: objectsUtils,

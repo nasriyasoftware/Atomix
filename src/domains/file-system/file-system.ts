@@ -5,7 +5,7 @@ import { getAccessOptions } from './assets/helpers';
 import stringsUtils from '../data-types/string/strings-utils';
 import fsPromises from './assets/fs-promises';
 
-class FileSystemUtils {
+export class FileSystemUtils {
     /**
      * Provides async promises for file system operations.
      * 

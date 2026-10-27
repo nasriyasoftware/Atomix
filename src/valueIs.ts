@@ -5,7 +5,7 @@ import arraysUtils from "./domains/data-types/array/arrays-utils";
 import numbersUtils from "./domains/data-types/number/numbers-utils";
 import regexUtils from "./domains/data-types/regex/regex-utils";
 
-class ValueIs {
+export class ValueIs {
     /**
      * Checks if the provided value is defined, i.e. not null and not undefined.
      * 

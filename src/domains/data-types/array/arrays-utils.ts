@@ -2,7 +2,7 @@ import arraysGuard from "./arrays-guard";
 import recordsUtils from "../record/records-utils";
 import numbersUtils from "../number/numbers-utils";
 
-class ArraysUtils {
+export class ArraysUtils {
     /**
      * Returns the arraysGuard instance.
      * @since v1.0.0
